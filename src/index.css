@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Sacred Hindu Theme - Light Mode */
+    --background: 45 50% 98%;
+    --foreground: 0 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 10% 15%;
+
+    /* Sacred Saffron Primary */
+    --primary: 30 100% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Deep Red Secondary */
+    --secondary: 0 67% 46%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Gold Accent */
+    --accent: 45 89% 67%;
+    --accent-foreground: 0 10% 15%;
+
+    /* Deep Blue */
+    --sacred-blue: 215 81% 31%;
+    --sacred-blue-foreground: 0 0% 100%;
+
+    /* Deep Green */
+    --sacred-green: 123 46% 34%;
+    --sacred-green-foreground: 0 0% 100%;
+
+    --muted: 45 30% 92%;
+    --muted-foreground: 0 10% 45%;
+
+    --destructive: 0 67% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 45 25% 88%;
+    --input: 45 25% 88%;
+    --ring: 30 100% 48%;
+
+    --radius: 1rem;
+
+    /* Sacred Gradients */
+    --gradient-sacred: linear-gradient(135deg, hsl(30 100% 48%), hsl(45 89% 67%));
+    --gradient-devotion: linear-gradient(180deg, hsl(45 50% 98%), hsl(30 40% 95%));
+    --gradient-divine: linear-gradient(135deg, hsl(0 67% 46%), hsl(30 100% 48%));
+
+    /* Sacred Shadows */
+    --shadow-sacred: 0 4px 20px hsl(30 100% 48% / 0.15);
+    --shadow-gold: 0 2px 15px hsl(45 89% 67% / 0.2);
+    --shadow-soft: 0 2px 10px hsl(0 0% 0% / 0.05);
+
+    /* Animations */
+    --transition-sacred: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    /* Sacred Mode - Enhanced Saffron & Gold */
+    --background: 0 10% 10%;
+    --foreground: 45 50% 95%;
+
+    --card: 0 10% 12%;
+    --card-foreground: 45 50% 95%;
+
+    --popover: 0 10% 12%;
+    --popover-foreground: 45 50% 95%;
+
+    --primary: 30 100% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 67% 52%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 45 89% 72%;
+    --accent-foreground: 0 10% 10%;
+
+    --sacred-blue: 215 81% 40%;
+    --sacred-blue-foreground: 0 0% 100%;
+
+    --sacred-green: 123 46% 42%;
+    --sacred-green-foreground: 0 0% 100%;
+
+    --muted: 0 10% 18%;
+    --muted-foreground: 45 20% 65%;
+
+    --destructive: 0 67% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 10% 20%;
+    --input: 0 10% 20%;
+    --ring: 30 100% 55%;
+
+    --gradient-sacred: linear-gradient(135deg, hsl(30 100% 55%), hsl(45 89% 72%));
+    --gradient-devotion: linear-gradient(180deg, hsl(0 10% 10%), hsl(0 10% 15%));
+    --gradient-divine: linear-gradient(135deg, hsl(0 67% 52%), hsl(30 100% 55%));
+
+    --shadow-sacred: 0 4px 20px hsl(30 100% 55% / 0.25);
+    --shadow-gold: 0 2px 15px hsl(45 89% 72% / 0.3);
+    --shadow-soft: 0 2px 10px hsl(0 0% 0% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Sacred Scroll */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/50;
+  }
+}
+
+@layer components {
+  /* Sacred Animations */
+  .sacred-transition {
+    transition: var(--transition-sacred);
+  }
+
+  .sacred-card {
+    @apply bg-card rounded-2xl shadow-[var(--shadow-soft)] border border-border/50;
+  }
+
+  .sacred-gradient {
+    background: var(--gradient-sacred);
+  }
+
+  .devotion-gradient {
+    background: var(--gradient-devotion);
+  }
+
+  .divine-gradient {
+    background: var(--gradient-divine);
+  }
+
+  /* Sacred Hover Effects */
+  .hover-sacred {
+    @apply sacred-transition hover:shadow-[var(--shadow-sacred)] hover:scale-[1.02];
+  }
+
+  .hover-gold {
+    @apply sacred-transition hover:shadow-[var(--shadow-gold)];
+  }
+}
+
+/* Reduce Motion Support */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

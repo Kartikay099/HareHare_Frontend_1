@@ -1,0 +1,89 @@
+{
+  "app": {
+    "name": "Hare Hare",
+    "welcome": "Welcome to Sacred Journey",
+    "loading": "Loading...",
+    "error": "Something went wrong 🙏",
+    "reload": "Please reload",
+    "retry": "Retry"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "phone": "Phone Number",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "otp": "Enter OTP",
+    "sendOtp": "Send OTP",
+    "verifyOtp": "Verify OTP",
+    "loginSuccess": "Welcome back! 🙏",
+    "registerSuccess": "Registration successful! 🎉",
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?"
+  },
+  "nav": {
+    "home": "Home",
+    "events": "Events",
+    "puja": "Puja",
+    "donate": "Donate",
+    "library": "Library",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "home": {
+    "title": "Sacred Feed",
+    "dailyShloka": "Daily Shloka",
+    "todaysWisdom": "Today's Wisdom",
+    "culturalHighlights": "Cultural Highlights"
+  },
+  "events": {
+    "title": "Upcoming Festivals",
+    "upcomingEvents": "Sacred Calendar",
+    "noEvents": "No upcoming events"
+  },
+  "puja": {
+    "title": "Puja Guides",
+    "timers": "Puja Timers",
+    "guides": "Step-by-Step Guides",
+    "startPuja": "Start Puja"
+  },
+  "donate": {
+    "title": "Support Sacred Causes",
+    "amount": "Amount",
+    "makedonation": "Make Donation",
+    "thankYou": "Thank you for your generosity! 🙏"
+  },
+  "library": {
+    "title": "Sacred Library",
+    "scriptures": "Scriptures",
+    "resources": "Resources",
+    "search": "Search..."
+  },
+  "profile": {
+    "title": "My Profile",
+    "editProfile": "Edit Profile",
+    "saveChanges": "Save Changes",
+    "updated": "Profile updated successfully"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "fontSize": "Font Size",
+    "motion": "Reduce Animations",
+    "account": "Account",
+    "normal": "Normal",
+    "large": "Large",
+    "system": "System",
+    "light": "Light",
+    "sacred": "Sacred Mode",
+    "english": "English",
+    "hindi": "हिन्दी"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Sacred Journey",
+    "subtitle": "Discover the divine path",
+    "continue": "Continue"
+  }
+}
