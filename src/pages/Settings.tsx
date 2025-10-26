@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Settings as SettingsIcon, LogOut, Heart, Flower, Star, Sparkles } from 'lucide-react';
+import { Settings as SettingsIcon, LogOut, Heart, Flower, Star, Sparkles, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Settings: React.FC = () => {
@@ -25,6 +25,7 @@ const Settings: React.FC = () => {
   const [reduceMotion, setReduceMotion] = useState(
     localStorage.getItem('reduceMotion') === 'true'
   );
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Simple state for seva - not dependent on user object
   const [currentSeva, setCurrentSeva] = useState('basic');
@@ -41,6 +42,10 @@ const Settings: React.FC = () => {
       document.documentElement.classList.remove('reduce-motion');
     }
   }, [reduceMotion]);
+
+  const handleBackClick = () => {
+    navigate(-1);
+  };
 
   const handleLanguageChange = (newLang: string) => {
     setLanguage(newLang);
@@ -61,14 +66,23 @@ const Settings: React.FC = () => {
     toast.success(checked ? 'Animations reduced' : 'Animations enabled');
   };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     logout();
     toast.success('Logged out successfully');
     navigate('/auth/login');
+    setShowLogoutConfirm(false);
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
+    toast.info('Logout cancelled');
   };
 
   const offerSeva = (sevaLevel: string) => {
-    // Mock seva offering - in real app would call payment API
     setCurrentSeva(sevaLevel);
     setSevaStatus('active');
     toast.success(`Thank you for your ${sevaLevel} seva! 🙏`);
@@ -163,6 +177,18 @@ const Settings: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
+      {/* Back Button - Top Left */}
+      <div className="mb-6">
+        <Button
+          onClick={handleBackClick}
+          variant="ghost"
+          className="flex items-center gap-2 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+      </div>
+
       <div className="text-center mb-8">
         <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
           <SettingsIcon className="h-16 w-16 text-primary" />
@@ -329,15 +355,50 @@ const Settings: React.FC = () => {
             Account
           </h2>
           <Button
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             variant="outline"
-            className="w-full flex items-center justify-center space-x-2"
+            className="w-full flex items-center justify-center space-x-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
           >
             <LogOut className="h-5 w-5" />
             <span>Sign Out</span>
           </Button>
         </div>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg border border-amber-200">
+            <div className="text-center mb-4">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <LogOut className="h-8 w-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Are you sure you want to sign out?
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                You will need to sign in again to access your spiritual journey.
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button
+                onClick={cancelLogout}
+                variant="outline"
+                className="flex-1 border-amber-200 text-amber-700 hover:bg-amber-50"
+              >
+                No, Stay Signed In
+              </Button>
+              <Button
+                onClick={confirmLogout}
+                className="flex-1 bg-red-600 text-white hover:bg-red-700"
+              >
+                Yes, Sign Out
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

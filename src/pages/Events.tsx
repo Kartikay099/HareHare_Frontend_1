@@ -35,9 +35,20 @@ const Events: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <SacredLoader />
-      </div>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+  <div className="relative">
+    <div className="text-6xl text-amber-600">ॐ</div>
+  </div>
+  
+  <div className="text-center space-y-2">
+    <p className="text-lg font-semibold text-amber-700 animate-pulse">
+      ॐ शान्ति शान्ति शान्तिः
+    </p>
+    {/* <p className="text-sm text-amber-600">
+      Divine energy flowing...
+    </p> */}
+  </div>
+</div>
     );
   }
 

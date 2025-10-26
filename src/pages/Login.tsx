@@ -58,7 +58,7 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center devotion-gradient p-4">
       <div className="sacred-card max-w-md w-full p-8 animate-fade-in">
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🙏</div>
+          <div className="text-6xl mb-4"> ॐ </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {t('auth.login')}
           </h1>

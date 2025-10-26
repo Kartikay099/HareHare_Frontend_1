@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import SacredLoader from '@/components/SacredLoader';
 
 type Message = {
   id: string;
@@ -70,20 +71,34 @@ const supportsSpeechRecognition = (): boolean => {
 };
 
 const Home: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    { 
-      id: 'm1', 
-      from: 'system', 
-      text: 'Namaste! Choose a deity to begin your conversation.',
-      timestamp: new Date()
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const [selectedGod, setSelectedGod] = useState<God>(gods[6]); // Default to Hanuman
   const [isGodDropdownOpen, setIsGodDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
   const recognitionRef = useRef<null | any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Simulate initial page loading
+    const loadInitialData = async () => {
+      // Simulate API/data loading delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setMessages([
+        { 
+          id: 'm1', 
+          from: 'system', 
+          text: 'Namaste! Choose a deity to begin your conversation.',
+          timestamp: new Date()
+        },
+      ]);
+      setIsLoading(false);
+    };
+
+    loadInitialData();
+  }, []);
 
   useEffect(() => {
     if (!supportsSpeechRecognition()) return;
@@ -234,8 +249,29 @@ const Home: React.FC = () => {
     startNewChat();
   };
 
+  // PAGE LOADING SCREEN - YAHAN SWASTIK WALA LOADER AAYEGA
+  if (isLoading) {
+    return (
+         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+  <div className="relative">
+    <div className="text-6xl text-amber-600">ॐ</div>
+  </div>
+  
+  <div className="text-center space-y-2">
+    <p className="text-lg font-semibold text-amber-700 animate-pulse">
+      ॐ शान्ति शान्ति शान्तिः
+    </p>
+    {/* <p className="text-sm text-amber-600">
+      Divine energy flowing...
+    </p> */}
+  </div>
+</div>
+    );
+  }
+
+  // MAIN CHAT INTERFACE
   return (
-    <div className="min-h-screen bg-orange-25 to-slate-100 py-4 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-slate-100 py-4 px-4">
       <div className="max-w-4xl mx-auto h-screen flex flex-col">
         
         {/* Header */}
@@ -287,8 +323,8 @@ const Home: React.FC = () => {
           </button>
         </div>
 
-  {/* Chat Container (reduced height) */}
-  <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col mb-4 max-h-[60vh] sm:max-h-[55vh]">
+        {/* Chat Container */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col mb-4 max-h-[60vh] sm:max-h-[55vh]">
           
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">

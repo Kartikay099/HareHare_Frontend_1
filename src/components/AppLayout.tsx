@@ -18,9 +18,10 @@ const AppLayout: React.FC = () => {
     // { path: '/app/donate', icon: Heart, label: t('nav.donate') },
     { path: '/app/library', icon: BookOpen, label: t('nav.library') },
   
-    { path: '/app/profile', icon: User, label: t('nav.profile') },
-      // { path: '/app/events', icon: Calendar, label: t('nav.events') },
-    { path: '/app/settings', icon: Settings, label: t('nav.settings') },
+    
+      { path: '/app/events', icon: Calendar, label: t('nav.events') },
+      { path: '/app/profile', icon: User, label: t('nav.profile') },
+    // { path: '/app/settings', icon: Settings, label: t('nav.settings') },
   ];
 
   const toggleLanguage = () => {
@@ -48,7 +49,7 @@ const AppLayout: React.FC = () => {
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <span className="text-3xl">🕉️ Hare Hare</span>
+            <span className="text-3xl">ॐ Hare Hare</span>
             <h1 className="text-xl font-bold text-foreground hidden sm:block">
               {t('app.name')}
             </h1>

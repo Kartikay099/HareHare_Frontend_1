@@ -1,30 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, BadgeCheck } from 'lucide-react';
+import { User, BadgeCheck, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import SacredLoader from '@/components/SacredLoader';
+import { useNavigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate initial data loading
+  useEffect(() => {
+    const loadProfileData = async () => {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setIsLoading(false);
+    };
+
+    loadProfileData();
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock save - in real app would call API
     toast.success(t('profile.updated'));
   };
 
-  // Fixed subscription data - remove dependency on user object
-  const isSubscribed = true; // or false based on your needs
+  const handleSettingsClick = () => {
+    navigate('/app/settings');
+  };
+
+  const isSubscribed = true;
+
+  // PAGE LOADING SCREEN
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="relative">
+          <div className="text-6xl text-amber-600">ॐ</div>
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-lg font-semibold text-amber-700 animate-pulse">
+            ॐ शान्ति शान्ति शान्तिः
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
+
+    
     <div className="max-w-2xl mx-auto animate-fade-in">
+      
+        {/* Settings Button - Top Right */}
+      <div className="flex justify-end mb-6">
+        <Button
+          onClick={handleSettingsClick}
+          variant="outline"
+          className="flex items-center gap-2 border-amber-200 text-amber-700 hover:bg-amber-50"
+        >
+          <Settings className="h-4 w-4" />
+          Settings
+        </Button>
+      </div>
+
+      {/* Header Section */}
       <div className="text-center mb-8">
         <div className="inline-block p-4 bg-primary/10 rounded-full mb-4 relative">
           <User className="h-16 w-16 text-primary" />
@@ -48,6 +96,9 @@ const Profile: React.FC = () => {
         )}
       </div>
 
+    
+
+      {/* Profile Form */}
       <div className="sacred-card p-8">
         <form onSubmit={handleSave} className="space-y-6">
           <div className="space-y-2">
@@ -87,12 +138,24 @@ const Profile: React.FC = () => {
             </div>
           )}
 
-          <Button
-            type="submit"
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {t('profile.saveChanges')}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              type="submit"
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {t('profile.saveChanges')}
+            </Button>
+            
+            {/* Alternative: Settings button can also be placed here */}
+            {/* <Button
+              onClick={handleSettingsClick}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Button> */}
+          </div>
         </form>
 
         <div className="mt-8 pt-8 border-t border-border">
