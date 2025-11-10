@@ -49,7 +49,7 @@ const AppLayout: React.FC = () => {
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <span className="text-3xl">ॐ Hare Hare</span>
+            <span className="text-3xl">HareHare</span>
             <h1 className="text-xl font-bold text-foreground hidden sm:block">
               {t('app.name')}
             </h1>

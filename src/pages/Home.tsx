@@ -271,8 +271,9 @@ const Home: React.FC = () => {
 
   // MAIN CHAT INTERFACE
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-slate-100 py-4 px-4">
-      <div className="max-w-4xl mx-auto h-screen flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 py-4 px-4">
+      <div className="max-w-4xl mx-auto bg-gradient-to-br from-orange-50 h-screen flex flex-col"> 
+        {/* change kraa hai yha bg mai */}
         
         {/* Header */}
         <div className="text-center mb-4 px-2">
@@ -360,14 +361,15 @@ const Home: React.FC = () => {
 
           {/* Input Area */}
           <div className="p-3 border-t border-slate-200">
-            <div className="flex items-center gap-2">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(); }}
-                placeholder={`Ask ${selectedGod.name}...`}
-                className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              />
+  <div className="flex items-center gap-2">
+    <input
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(); }}
+      placeholder={`Ask ${selectedGod.name}...`}
+      className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 max-w-[90%]"
+    />
+ {/* isme iski widht change dekhni hai kesi aa rhi hai */}
 
               <button
                 onClick={() => handleSend()}
@@ -404,7 +406,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="text-center text-xs text-slate-500 px-2 pb-2">
+        <div className="text-center text-xs text-orange-500 px-2 pb-2">
           Speak or type to receive divine wisdom from {selectedGod.name}
         </div>
       </div>

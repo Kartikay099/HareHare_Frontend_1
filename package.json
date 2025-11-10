@@ -13,8 +13,6 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@ionic/react": "^8.7.7",
-   
-
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -48,6 +46,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
+    "firebase": "^12.4.0",
     "i18next": "^25.6.0",
     "input-otp": "^1.4.2",
     "ionicons": "^8.0.13",
