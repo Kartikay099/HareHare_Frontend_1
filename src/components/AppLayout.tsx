@@ -18,22 +18,22 @@ const AppLayout: React.FC = () => {
   const ads = [
     {
       id: 1,
-      title: t('ads.specialPuja', 'Special Puja Offer'),
-      description: t('ads.bookNow', 'Book now and get 20% off'),
+      title: t('ads.specialPuja'),
+      description: t('ads.bookNow'),
       image: '/ads/puja-offer.jpg',
       link: '/app/puja'
     },
     {
       id: 2,
-      title: t('ads.donation', 'Support Temple Renovation'),
-      description: t('ads.contributeToday', 'Contribute to a noble cause'),
+      title: t('ads.donation'),
+      description: t('ads.contributeToday'),
       image: '/ads/donation.jpg',
       link: '/app/donate'
     },
     {
       id: 3,
-      title: t('ads.events', 'Upcoming Festival'),
-      description: t('ads.joinCelebration', 'Join the grand celebration'),
+      title: t('ads.events'),
+      description: t('ads.joinCelebration'),
       image: '/ads/festival.jpg',
       link: '/app/events'
     }
@@ -47,6 +47,11 @@ const AppLayout: React.FC = () => {
     { path: '/app/events', icon: Calendar, label: t('nav.events') },
     { path: '/app/profile', icon: User, label: t('nav.profile') },
   ];
+
+  // Update ads and nav items when language changes
+  useEffect(() => {
+    // This will trigger re-render when language changes
+  }, [i18n.language]);
 
   // Initialize and update streak
   useEffect(() => {
@@ -121,31 +126,34 @@ const AppLayout: React.FC = () => {
   return (
     <div className="min-h-screen devotion-gradient">
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/80">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              variant="ghost"
-              size="sm"
-              className="hidden md:flex mr-2"
-            >
-              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-            <span className="text-3xl">HareHare</span>
-            <h1 className="text-xl font-bold text-foreground hidden sm:block">
-              {t('app.name')}
-            </h1>
-          </div>
-          
-          {/* Streak Counter */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 bg-orange-100 px-3 py-1 rounded-full border border-orange-200">
-              <Flame className="h-4 w-4 text-orange-500" />
-              <span className="text-sm font-medium text-orange-800">
-                {streakCount} {t('streak.days', 'days')}
-              </span>
-            </div>
+<header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/80">
+  <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="flex items-center space-x-2">
+      <Button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        variant="ghost"
+        size="sm"
+        className="hidden md:flex mr-2"
+      >
+        {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </Button>
+      {/* Show HareHare text on all screens */}
+      <div className="flex items-center space-x-2">
+        {/* <span className="text-2xl sm:text-3xl">🕉️</span> */}
+        <h1 className="text-xl font-bold text-foreground">
+          {t('app.name')}
+        </h1>
+      </div>
+    </div>
+    
+    {/* Streak Counter */}
+<div className="flex items-center space-x-4">
+  <div className="flex items-center space-x-2 bg-orange-100 px-3 py-1 rounded-full border border-orange-200">
+    <Flame className="h-4 w-4 text-orange-500" />
+    <span className="text-sm font-medium text-orange-800">
+      {streakCount} {t('streak.days')}
+    </span>
+  </div>
             
             <Button
               onClick={toggleLanguage}
@@ -181,18 +189,18 @@ const AppLayout: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-orange-200 p-4 text-center">
             <div className="flex items-center justify-center space-x-2 mb-2">
               <Flame className="h-6 w-6 text-orange-500" />
-              <h3 className="font-semibold text-gray-800">{t('streak.title', 'Daily Streak')}</h3>
+              <h3 className="font-semibold text-gray-800">{t('streak.title')}</h3>
             </div>
             <div className="text-3xl font-bold text-orange-600 mb-1">{streakCount}</div>
-            <p className="text-sm text-gray-600">{t('streak.subtitle', 'consecutive days')}</p>
-            <p className="text-xs text-gray-500 mt-2">{t('streak.visitDaily', 'Visit daily to maintain your streak!')}</p>
+            <p className="text-sm text-gray-600">{t('streak.subtitle')}</p>
+            <p className="text-xs text-gray-500 mt-2">{t('streak.visitDaily')}</p>
           </div>
 
           {/* Ad Window */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-3">
               <h3 className="font-semibold text-white text-center text-sm">
-                {t('ads.sponsored', 'Sponsored')}
+                {t('ads.sponsored')}
               </h3>
             </div>
             <div className="p-4">
@@ -262,7 +270,7 @@ const AppLayout: React.FC = () => {
             </p>
           </div>
           <Button variant="outline" size="sm" className="flex-shrink-0">
-            {t('ads.learnMore', 'Learn More')}
+            {t('ads.learnMore')}
           </Button>
         </div>
       </div>
@@ -270,7 +278,7 @@ const AppLayout: React.FC = () => {
       {/* Bottom Navigation (Mobile) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border md:hidden z-50 backdrop-blur-sm bg-card/90">
         <div className="flex justify-around items-center h-16">
-          {navItems.slice(0, 4).map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
@@ -300,8 +308,10 @@ const AppLayout: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Flame className="h-5 w-5 text-orange-500" />
               <div>
-                <div className="font-semibold text-orange-800">{streakCount} day streak</div>
-                <div className="text-xs text-orange-600">Keep it going!</div>
+                <div className="font-semibold text-orange-800">
+                  {streakCount} {t('streak.days')} {t('streak.streak', 'streak')}
+                </div>
+                <div className="text-xs text-orange-600">{t('streak.keepGoing', 'Keep it going!')}</div>
               </div>
             </div>
           </div>

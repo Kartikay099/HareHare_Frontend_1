@@ -4,10 +4,9 @@ import { getScriptures, Scripture } from '@/services/api';
 import { BookOpen, Search, Download, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import SacredLoader from '@/components/SacredLoader';
 
 const Library: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [scriptures, setScriptures] = useState<Scripture[]>([]);
   const [filteredScriptures, setFilteredScriptures] = useState<Scripture[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,23 +53,20 @@ const Library: React.FC = () => {
     // In real app: navigate(`/scripture/${scripture.id}`);
   };
 
-  //idhr loading wala screen aayega
+  // Loading screen with Hindi text
   if (loading) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-  <div className="relative">
-    <div className="text-6xl text-amber-600">ॐ</div>
-  </div>
-  
-  <div className="text-center space-y-2">
-    <p className="text-lg font-semibold text-amber-700 animate-pulse">
-      ॐ शान्ति शान्ति शान्तिः
-    </p>
-    {/* <p className="text-sm text-amber-600">
-      Divine energy flowing...
-    </p> */}
-  </div>
-</div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="relative">
+          <div className="text-6xl text-amber-600">ॐ</div>
+        </div>
+        
+        <div className="text-center space-y-2">
+          <p className="text-lg font-semibold text-amber-700 animate-pulse">
+            {i18n.language === 'hi' ? 'ॐ शान्ति शान्ति शान्तिः' : 'Om Shanti Shanti Shantih'}
+          </p>
+        </div>
+      </div>
     );
   }
 
@@ -128,7 +124,7 @@ const Library: React.FC = () => {
                   size="sm"
                   variant="ghost"
                   className="h-8 w-8 p-0 hover:bg-primary hover:text-primary-foreground"
-                  title="Read"
+                  title={i18n.language === 'hi' ? 'पढ़ें' : 'Read'}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -137,7 +133,7 @@ const Library: React.FC = () => {
                   size="sm"
                   variant="ghost"
                   className="h-8 w-8 p-0 hover:bg-green-600 hover:text-white"
-                  title="Download PDF"
+                  title={i18n.language === 'hi' ? 'डाउनलोड करें' : 'Download PDF'}
                 >
                   <Download className="h-4 w-4" />
                 </Button>
@@ -149,7 +145,9 @@ const Library: React.FC = () => {
         {filteredScriptures.length === 0 && (
           <div className="col-span-2 text-center py-12">
             <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No scriptures found</p>
+            <p className="text-muted-foreground">
+              {i18n.language === 'hi' ? 'कोई ग्रंथ नहीं मिले' : 'No scriptures found'}
+            </p>
           </div>
         )}
       </div>
@@ -157,4 +155,4 @@ const Library: React.FC = () => {
   );
 };
 
- export default Library;
+export default Library;

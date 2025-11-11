@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import SacredLoader from '@/components/SacredLoader';
+import { useTranslation } from 'react-i18next';
 
 type Message = {
   id: string;
@@ -10,58 +10,112 @@ type Message = {
 
 type God = {
   id: string;
-  name: string;
-  description: string;
+  name: {
+    en: string;
+    hi: string;
+  };
+  description: {
+    en: string;
+    hi: string;
+  };
   color: string;
 };
 
 const gods: God[] = [
   {
     id: 'krishna',
-    name: 'Krishna',
-    description: 'Divine Guide',
+    name: {
+      en: 'Krishna',
+      hi: 'कृष्ण'
+    },
+    description: {
+      en: 'Divine Guide',
+      hi: 'दिव्य मार्गदर्शक'
+    },
     color: 'bg-blue-500'
   },
   {
     id: 'shiva',
-    name: 'Shiva',
-    description: 'The Transformer',
+    name: {
+      en: 'Shiva',
+      hi: 'शिव'
+    },
+    description: {
+      en: 'The Transformer',
+      hi: 'परिवर्तनकारी'
+    },
     color: 'bg-gray-600'
   },
   {
     id: 'vishnu',
-    name: 'Vishnu',
-    description: 'The Preserver',
+    name: {
+      en: 'Vishnu',
+      hi: 'विष्णु'
+    },
+    description: {
+      en: 'The Preserver',
+      hi: 'पालनहार'
+    },
     color: 'bg-sky-600'
   },
   {
     id: 'lakshmi',
-    name: 'Lakshmi',
-    description: 'Wealth & Prosperity',
+    name: {
+      en: 'Lakshmi',
+      hi: 'लक्ष्मी'
+    },
+    description: {
+      en: 'Wealth & Prosperity',
+      hi: 'धन और समृद्धि'
+    },
     color: 'bg-yellow-500'
   },
   {
     id: 'saraswati',
-    name: 'Saraswati',
-    description: 'Knowledge & Arts',
+    name: {
+      en: 'Saraswati',
+      hi: 'सरस्वती'
+    },
+    description: {
+      en: 'Knowledge & Arts',
+      hi: 'ज्ञान और कला'
+    },
     color: 'bg-white border border-gray-300 text-gray-800'
   },
   {
     id: 'ganesha',
-    name: 'Ganesha',
-    description: 'Obstacle Remover',
+    name: {
+      en: 'Ganesha',
+      hi: 'गणेश'
+    },
+    description: {
+      en: 'Obstacle Remover',
+      hi: 'विघ्नहर्ता'
+    },
     color: 'bg-orange-400'
   },
   {
     id: 'hanuman',
-    name: 'Hanuman',
-    description: 'Strength & Devotion',
+    name: {
+      en: 'Hanuman',
+      hi: 'हनुमान'
+    },
+    description: {
+      en: 'Strength & Devotion',
+      hi: 'शक्ति और भक्ति'
+    },
     color: 'bg-red-500'
   },
   {
     id: 'durga',
-    name: 'Durga',
-    description: 'Power & Protection',
+    name: {
+      en: 'Durga',
+      hi: 'दुर्गा'
+    },
+    description: {
+      en: 'Power & Protection',
+      hi: 'शक्ति और सुरक्षा'
+    },
     color: 'bg-red-600'
   }
 ];
@@ -71,26 +125,27 @@ const supportsSpeechRecognition = (): boolean => {
 };
 
 const Home: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const [selectedGod, setSelectedGod] = useState<God>(gods[6]); // Default to Hanuman
   const [isGodDropdownOpen, setIsGodDropdownOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [isLoading, setIsLoading] = useState(true);
   const recognitionRef = useRef<null | any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Simulate initial page loading
     const loadInitialData = async () => {
-      // Simulate API/data loading delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       setMessages([
         { 
           id: 'm1', 
           from: 'system', 
-          text: 'Namaste! Choose a deity to begin your conversation.',
+          text: i18n.language === 'hi' 
+            ? 'नमस्ते! अपनी वार्तालाप शुरू करने के लिए एक देवता चुनें।'
+            : 'Namaste! Choose a deity to begin your conversation.',
           timestamp: new Date()
         },
       ]);
@@ -98,14 +153,14 @@ const Home: React.FC = () => {
     };
 
     loadInitialData();
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     if (!supportsSpeechRecognition()) return;
     
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
+    recognition.lang = i18n.language === 'hi' ? 'hi-IN' : 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     recognition.continuous = false;
@@ -126,18 +181,24 @@ const Home: React.FC = () => {
     };
 
     recognitionRef.current = recognition;
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const getLocalizedText = (text: { en: string; hi: string }) => {
+    return i18n.language === 'hi' ? text.hi : text.en;
+  };
 
   const startNewChat = () => {
     setMessages([
       { 
         id: 'm1', 
         from: 'system', 
-        text: `You are now speaking with ${selectedGod.name}. ${selectedGod.description}. How may I guide you?`,
+        text: i18n.language === 'hi'
+          ? `अब आप ${getLocalizedText(selectedGod.name)} से बात कर रहे हैं। ${getLocalizedText(selectedGod.description)}। मैं आपका मार्गदर्शन कैसे कर सकता हूं?`
+          : `You are now speaking with ${getLocalizedText(selectedGod.name)}. ${getLocalizedText(selectedGod.description)}. How may I guide you?`,
         timestamp: new Date()
       },
     ]);
@@ -170,49 +231,100 @@ const Home: React.FC = () => {
   const generateDivineResponse = async (prompt: string, god: God): Promise<string> => {
     await new Promise((r) => setTimeout(r, 600));
     
-    const responses: Record<string, string[]> = {
-      hanuman: [
-        `Jai Bajrangbali! Your question about "${prompt}" requires strength and devotion. Serve with unwavering faith.`,
-        `With devotion to Ram, all is possible. "${prompt}" - let your heart guide your actions with courage.`,
-        `Your query shows sincere seeking. Regarding "${prompt}", remember true strength comes from devotion.`
-      ],
-      krishna: [
-        `I hear your question: "${prompt}". Remember, perform your duty without attachment to the results.`,
-        `The flute plays for you. Regarding "${prompt}", know that whatever happened, happened for good.`
-      ],
-      shiva: [
-        `Om Namah Shivaya! "${prompt}" - meditate upon this and find the truth within your consciousness.`,
-        `In the cosmic dance, all questions find their rhythm. Seek stillness for your answer.`
-      ],
-      vishnu: [
-        `I preserve the cosmic order. Your concern about "${prompt}" is noted. Dharma shall prevail.`,
-        `Have faith in the divine plan. "${prompt}" will resolve through righteous action.`
-      ],
-      lakshmi: [
-        `May prosperity bless your life! Regarding "${prompt}", remember true wealth lies in contentment.`,
-        `Where there is righteousness, there I reside. Focus on dharma and abundance will follow.`
-      ],
-      saraswati: [
-        `Knowledge illuminates the path. "${prompt}" - seek wisdom through study and contemplation.`,
-        `True knowledge leads to liberation. Your question shows your thirst for learning.`
-      ],
-      ganesha: [
-        `Om Gam Ganapataye Namaha! I remove obstacles from your path. "${prompt}" - begin with pure intention.`,
-        `With determination and wisdom, no obstacle is too great. Your path will clear.`
-      ],
-      durga: [
-        `Face challenges with courage. "${prompt}" requires inner strength and virtuous action.`,
-        `The divine mother protects her children. Have courage in facing this situation.`
-      ]
+    const responses: Record<string, { en: string[]; hi: string[] }> = {
+      hanuman: {
+        en: [
+          `Jai Bajrangbali! Your question about "${prompt}" requires strength and devotion. Serve with unwavering faith.`,
+          `With devotion to Ram, all is possible. "${prompt}" - let your heart guide your actions with courage.`,
+          `Your query shows sincere seeking. Regarding "${prompt}", remember true strength comes from devotion.`
+        ],
+        hi: [
+          `जय बजरंगबली! "${prompt}" के बारे में आपके प्रश्न के लिए शक्ति और भक्ति की आवश्यकता है। अटूट विश्वास के साथ सेवा करें।`,
+          `राम के प्रति भक्ति के साथ, सब कुछ संभव है। "${prompt}" - अपने हृदय को साहस के साथ अपने कार्यों का मार्गदर्शन करने दें।`,
+          `आपकी जिज्ञासा ईमानदार खोज दर्शाती है। "${prompt}" के संबंध में, याद रखें कि वास्तविक शक्ति भक्ति से आती है।`
+        ]
+      },
+      krishna: {
+        en: [
+          `I hear your question: "${prompt}". Remember, perform your duty without attachment to the results.`,
+          `The flute plays for you. Regarding "${prompt}", know that whatever happened, happened for good.`
+        ],
+        hi: [
+          `मैं आपका प्रश्न सुनता हूं: "${prompt}"। याद रखें, परिणामों से लगाव के बिना अपना कर्तव्य निभाएं।`,
+          `बांसुरी आपके लिए बजती है। "${prompt}" के संबंध में, जान लें कि जो भी हुआ, अच्छे के लिए हुआ।`
+        ]
+      },
+      shiva: {
+        en: [
+          `Om Namah Shivaya! "${prompt}" - meditate upon this and find the truth within your consciousness.`,
+          `In the cosmic dance, all questions find their rhythm. Seek stillness for your answer.`
+        ],
+        hi: [
+          `ॐ नमः शिवाय! "${prompt}" - इस पर ध्यान करें और अपनी चेतना के भीतर सत्य खोजें।`,
+          `ब्रह्मांडीय नृत्य में, सभी प्रश्नों को अपनी लय मिलती है। अपने उत्तर के लिए शांति खोजें।`
+        ]
+      },
+      vishnu: {
+        en: [
+          `I preserve the cosmic order. Your concern about "${prompt}" is noted. Dharma shall prevail.`,
+          `Have faith in the divine plan. "${prompt}" will resolve through righteous action.`
+        ],
+        hi: [
+          `मैं ब्रह्मांडीय व्यवस्था को संरक्षित करता हूं। "${prompt}" के बारे में आपकी चिंता नोट कर ली गई है। धर्म की जीत होगी।`,
+          `दिव्य योजना में विश्वास रखें। "${prompt}" धार्मिक कार्यों के माध्यम से हल हो जाएगा।`
+        ]
+      },
+      lakshmi: {
+        en: [
+          `May prosperity bless your life! Regarding "${prompt}", remember true wealth lies in contentment.`,
+          `Where there is righteousness, there I reside. Focus on dharma and abundance will follow.`
+        ],
+        hi: [
+          `समृद्धि आपके जीवन को आशीर्वाद दे! "${prompt}" के संबंध में, याद रखें कि वास्तविक धन संतोष में निहित है।`,
+          `जहां धर्म है, वहां मैं निवास करती हूं। धर्म पर ध्यान केंद्रित करें और प्रचुरता आपका अनुसरण करेगी।`
+        ]
+      },
+      saraswati: {
+        en: [
+          `Knowledge illuminates the path. "${prompt}" - seek wisdom through study and contemplation.`,
+          `True knowledge leads to liberation. Your question shows your thirst for learning.`
+        ],
+        hi: [
+          `ज्ञान मार्ग को प्रकाशित करता है। "${prompt}" - अध्ययन और चिंतन के माध्यम से ज्ञान प्राप्त करें।`,
+          `सच्चा ज्ञान मोक्ष की ओर ले जाता है। आपका प्रश्न सीखने की आपकी प्यास दर्शाता है।`
+        ]
+      },
+      ganesha: {
+        en: [
+          `Om Gam Ganapataye Namaha! I remove obstacles from your path. "${prompt}" - begin with pure intention.`,
+          `With determination and wisdom, no obstacle is too great. Your path will clear.`
+        ],
+        hi: [
+          `ॐ गं गणपतये नमः! मैं आपके मार्ग से बाधाएं दूर करता हूं। "${prompt}" - शुद्ध इरादे से शुरुआत करें।`,
+          `दृढ़ संकल्प और ज्ञान के साथ, कोई भी बाधा बहुत बड़ी नहीं है। आपका मार्ग साफ हो जाएगा।`
+        ]
+      },
+      durga: {
+        en: [
+          `Face challenges with courage. "${prompt}" requires inner strength and virtuous action.`,
+          `The divine mother protects her children. Have courage in facing this situation.`
+        ],
+        hi: [
+          `साहस के साथ चुनौतियों का सामना करें। "${prompt}" के लिए आंतरिक शक्ति और पुण्य कार्य की आवश्यकता है।`,
+          `दिव्य माता अपने बच्चों की रक्षा करती है। इस स्थिति का सामना करने में साहस रखें।`
+        ]
+      }
     };
 
     const godResponses = responses[god.id] || responses.hanuman;
-    return godResponses[Math.floor(Math.random() * godResponses.length)];
+    const langResponses = i18n.language === 'hi' ? godResponses.hi : godResponses.en;
+    return langResponses[Math.floor(Math.random() * langResponses.length)];
   };
 
   const startListening = () => {
     if (!recognitionRef.current) return;
     try {
+      recognitionRef.current.lang = i18n.language === 'hi' ? 'hi-IN' : 'en-US';
       recognitionRef.current.start();
       setListening(true);
     } catch (e) {
@@ -234,7 +346,7 @@ const Home: React.FC = () => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     try {
       const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'en-US';
+      utter.lang = i18n.language === 'hi' ? 'hi-IN' : 'en-US';
       utter.rate = 0.9;
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utter);
@@ -249,36 +361,34 @@ const Home: React.FC = () => {
     startNewChat();
   };
 
-  // PAGE LOADING SCREEN - YAHAN SWASTIK WALA LOADER AAYEGA
+  // PAGE LOADING SCREEN
   if (isLoading) {
     return (
-         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-  <div className="relative">
-    <div className="text-6xl text-amber-600">ॐ</div>
-  </div>
-  
-  <div className="text-center space-y-2">
-    <p className="text-lg font-semibold text-amber-700 animate-pulse">
-      ॐ शान्ति शान्ति शान्तिः
-    </p>
-    {/* <p className="text-sm text-amber-600">
-      Divine energy flowing...
-    </p> */}
-  </div>
-</div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="relative">
+          <div className="text-6xl text-amber-600">ॐ</div>
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-lg font-semibold text-amber-700 animate-pulse">
+            {i18n.language === 'hi' ? 'ॐ शान्ति शान्ति शान्तिः' : 'Om Shanti Shanti Shantih'}
+          </p>
+        </div>
+      </div>
     );
   }
 
   // MAIN CHAT INTERFACE
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 py-4 px-4">
-      <div className="max-w-4xl mx-auto bg-gradient-to-br from-orange-50 h-screen flex flex-col"> 
-        {/* change kraa hai yha bg mai */}
-        
+      <div className="max-w-4xl mx-auto bg-gradient-to-br from-orange-50 h-screen flex flex-col">
         {/* Header */}
         <div className="text-center mb-4 px-2">
-          <h1 className="text-2xl font-bold text-slate-800 mb-1">Divine Dialogue</h1>
-          <p className="text-sm text-slate-600">Seek guidance from Hindu deities</p>
+          <h1 className="text-2xl font-bold text-slate-800 mb-1">
+            {i18n.language === 'hi' ? 'दिव्य संवाद' : 'Divine Dialogue'}
+          </h1>
+          <p className="text-sm text-slate-600">
+            {i18n.language === 'hi' ? 'हिंदू देवताओं से मार्गदर्शन प्राप्त करें' : 'Seek guidance from Hindu deities'}
+          </p>
         </div>
 
         {/* God Selection & Controls */}
@@ -289,8 +399,8 @@ const Home: React.FC = () => {
               className={`flex items-center justify-between w-full px-4 py-3 rounded-lg ${selectedGod.color} text-white font-medium shadow-sm transition-colors`}
             >
               <span className="flex items-center gap-2">
-                <span>{selectedGod.name}</span>
-                <span className="text-xs opacity-90">({selectedGod.description})</span>
+                <span>{getLocalizedText(selectedGod.name)}</span>
+                <span className="text-xs opacity-90">({getLocalizedText(selectedGod.description)})</span>
               </span>
               <span className="text-sm">▼</span>
             </button>
@@ -307,8 +417,8 @@ const Home: React.FC = () => {
                   >
                     <div className={`w-3 h-3 rounded-full ${god.color}`}></div>
                     <div className="text-left flex-1">
-                      <div className="font-medium text-slate-800">{god.name}</div>
-                      <div className="text-xs text-slate-500">{god.description}</div>
+                      <div className="font-medium text-slate-800">{getLocalizedText(god.name)}</div>
+                      <div className="text-xs text-slate-500">{getLocalizedText(god.description)}</div>
                     </div>
                   </button>
                 ))}
@@ -320,13 +430,12 @@ const Home: React.FC = () => {
             onClick={startNewChat}
             className="px-4 py-3 bg-primary hover:opacity-95 text-primary-foreground rounded-lg font-medium transition-colors shadow-sm whitespace-nowrap"
           >
-            New Chat
+            {i18n.language === 'hi' ? 'नया चैट' : 'New Chat'}
           </button>
         </div>
 
         {/* Chat Container */}
         <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col mb-4 max-h-[60vh] sm:max-h-[55vh]">
-          
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.map((m) => (
@@ -346,7 +455,7 @@ const Home: React.FC = () => {
                   {m.from === 'assistant' && (
                     <div className="flex items-center gap-2 mb-1">
                       <div className={`w-2 h-2 rounded-full ${selectedGod.color}`}></div>
-                      <span className="font-medium text-slate-700 text-sm">{selectedGod.name}</span>
+                      <span className="font-medium text-slate-700 text-sm">{getLocalizedText(selectedGod.name)}</span>
                     </div>
                   )}
                   <div className="whitespace-pre-wrap text-sm">{m.text}</div>
@@ -361,22 +470,25 @@ const Home: React.FC = () => {
 
           {/* Input Area */}
           <div className="p-3 border-t border-slate-200">
-  <div className="flex items-center gap-2">
-    <input
-      value={input}
-      onChange={(e) => setInput(e.target.value)}
-      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(); }}
-      placeholder={`Ask ${selectedGod.name}...`}
-      className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 max-w-[90%]"
-    />
- {/* isme iski widht change dekhni hai kesi aa rhi hai */}
+            <div className="flex items-center gap-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(); }}
+                placeholder={
+                  i18n.language === 'hi' 
+                    ? `${getLocalizedText(selectedGod.name)} से पूछें...`
+                    : `Ask ${getLocalizedText(selectedGod.name)}...`
+                }
+                className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 max-w-[90%]"
+              />
 
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim()}
                 className="px-4 py-2 bg-primary hover:opacity-95 disabled:bg-muted text-primary-foreground rounded-lg font-medium transition-colors text-sm whitespace-nowrap"
               >
-                Send
+                {i18n.language === 'hi' ? 'भेजें' : 'Send'}
               </button>
 
               {supportsSpeechRecognition() && (
@@ -398,7 +510,7 @@ const Home: React.FC = () => {
               <div className="text-center mt-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
                   <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                  Listening...
+                  {i18n.language === 'hi' ? 'सुन रहा हूं...' : 'Listening...'}
                 </div>
               </div>
             )}
@@ -407,7 +519,10 @@ const Home: React.FC = () => {
 
         {/* Footer */}
         <div className="text-center text-xs text-orange-500 px-2 pb-2">
-          Speak or type to receive divine wisdom from {selectedGod.name}
+          {i18n.language === 'hi' 
+            ? `${getLocalizedText(selectedGod.name)} से दिव्य ज्ञान प्राप्त करने के लिए बोलें या टाइप करें`
+            : `Speak or type to receive divine wisdom from ${getLocalizedText(selectedGod.name)}`
+          }
         </div>
       </div>
 

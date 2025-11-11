@@ -51,19 +51,23 @@ const Settings: React.FC = () => {
     setLanguage(newLang);
     i18n.changeLanguage(newLang);
     localStorage.setItem('language', newLang);
-    toast.success('Language updated');
+    toast.success(i18n.language === 'hi' ? 'भाषा अपडेट हो गई' : 'Language updated');
   };
 
   const handleFontSizeChange = (size: string) => {
     setFontSize(size);
     localStorage.setItem('fontSize', size);
-    toast.success('Font size updated');
+    toast.success(i18n.language === 'hi' ? 'फ़ॉन्ट आकार अपडेट हो गया' : 'Font size updated');
   };
 
   const handleMotionChange = (checked: boolean) => {
     setReduceMotion(checked);
     localStorage.setItem('reduceMotion', String(checked));
-    toast.success(checked ? 'Animations reduced' : 'Animations enabled');
+    toast.success(
+      checked 
+        ? (i18n.language === 'hi' ? 'एनिमेशन कम किए गए' : 'Animations reduced')
+        : (i18n.language === 'hi' ? 'एनिमेशन सक्षम किए गए' : 'Animations enabled')
+    );
   };
 
   const handleLogoutClick = () => {
@@ -72,94 +76,237 @@ const Settings: React.FC = () => {
 
   const confirmLogout = () => {
     logout();
-    toast.success('Logged out successfully');
+    toast.success(i18n.language === 'hi' ? 'सफलतापूर्वक लॉगआउट हो गए' : 'Logged out successfully');
     navigate('/auth/login');
     setShowLogoutConfirm(false);
   };
 
   const cancelLogout = () => {
     setShowLogoutConfirm(false);
-    toast.info('Logout cancelled');
+    toast.info(i18n.language === 'hi' ? 'लॉगआउट रद्द किया गया' : 'Logout cancelled');
   };
 
   const offerSeva = (sevaLevel: string) => {
     setCurrentSeva(sevaLevel);
     setSevaStatus('active');
-    toast.success(`Thank you for your ${sevaLevel} seva! 🙏`);
+    const message = i18n.language === 'hi' 
+      ? `आपकी ${getSevaName(sevaLevel)} सेवा के लिए धन्यवाद! 🙏`
+      : `Thank you for your ${getSevaName(sevaLevel)} seva! 🙏`;
+    toast.success(message);
+  };
+
+  const getSevaName = (sevaId: string) => {
+    const sevaNames: { [key: string]: { en: string; hi: string } } = {
+      basic: { en: 'basic', hi: 'मूल' },
+      weekly: { en: 'weekly', hi: 'साप्ताहिक' },
+      monthly: { en: 'monthly', hi: 'मासिक' },
+      yearly: { en: 'yearly', hi: 'वार्षिक' }
+    };
+    return i18n.language === 'hi' ? sevaNames[sevaId].hi : sevaNames[sevaId].en;
   };
 
   const sevaLevels = [
     {
       id: 'basic',
-      name: 'Dharma Seeker',
-      amount: 'Free',
-      period: 'Always available',
-      description: 'Continue your spiritual journey with basic access',
+      name: {
+        en: 'Dharma Seeker',
+        hi: 'धर्म साधक'
+      },
+      amount: {
+        en: 'Free',
+        hi: 'निःशुल्क'
+      },
+      period: {
+        en: 'Always available',
+        hi: 'सदैव उपलब्ध'
+      },
+      description: {
+        en: 'Continue your spiritual journey with basic access',
+        hi: 'मूल पहुंच के साथ अपनी आध्यात्मिक यात्रा जारी रखें'
+      },
       icon: Flower,
       blessings: [
-        'Daily spiritual guidance',
-        'Basic meditation content',
-        'Community prayers',
-        'Divine blessings'
+        {
+          en: 'Daily spiritual guidance',
+          hi: 'दैनिक आध्यात्मिक मार्गदर्शन'
+        },
+        {
+          en: 'Basic meditation content',
+          hi: 'मूल ध्यान सामग्री'
+        },
+        {
+          en: 'Community prayers',
+          hi: 'सामुदायिक प्रार्थनाएं'
+        },
+        {
+          en: 'Divine blessings',
+          hi: 'दिव्य आशीर्वाद'
+        }
       ],
       current: currentSeva === 'basic',
-      message: 'Continue your journey with gratitude'
+      message: {
+        en: 'Continue your journey with gratitude',
+        hi: 'कृतज्ञता के साथ अपनी यात्रा जारी रखें'
+      }
     },
     {
       id: 'weekly',
-      name: 'Weekly Seva',
-      amount: '₹108',
-      period: 'Weekly offering',
-      description: 'Support our mission with weekly contributions',
+      name: {
+        en: 'Weekly Seva',
+        hi: 'साप्ताहिक सेवा'
+      },
+      amount: {
+        en: '₹108',
+        hi: '₹108'
+      },
+      period: {
+        en: 'Weekly offering',
+        hi: 'साप्ताहिक योगदान'
+      },
+      description: {
+        en: 'Support our mission with weekly contributions',
+        hi: 'साप्ताहिक योगदान के साथ हमारे मिशन का समर्थन करें'
+      },
       icon: Heart,
       blessings: [
-        'All basic blessings',
-        'Weekly special pujas',
-        'Personalized spiritual guidance',
-        'Karma cleansing sessions',
-        'Your name in temple prayers'
+        {
+          en: 'All basic blessings',
+          hi: 'सभी मूल आशीर्वाद'
+        },
+        {
+          en: 'Weekly special pujas',
+          hi: 'साप्ताहिक विशेष पूजाएं'
+        },
+        {
+          en: 'Personalized spiritual guidance',
+          hi: 'व्यक्तिगत आध्यात्मिक मार्गदर्शन'
+        },
+        {
+          en: 'Karma cleansing sessions',
+          hi: 'कर्म शुद्धि सत्र'
+        },
+        {
+          en: 'Your name in temple prayers',
+          hi: 'मंदिर की प्रार्थनाओं में आपका नाम'
+        }
       ],
       current: currentSeva === 'weekly',
-      message: 'Your weekly support nourishes our spiritual family'
+      message: {
+        en: 'Your weekly support nourishes our spiritual family',
+        hi: 'आपका साप्ताहिक समर्थन हमारे आध्यात्मिक परिवार को पोषित करता है'
+      }
     },
     {
       id: 'monthly',
-      name: 'Monthly Seva',
-      amount: '₹501',
-      period: 'Monthly devotion',
-      description: 'Deepen your spiritual commitment',
+      name: {
+        en: 'Monthly Seva',
+        hi: 'मासिक सेवा'
+      },
+      amount: {
+        en: '₹501',
+        hi: '₹501'
+      },
+      period: {
+        en: 'Monthly devotion',
+        hi: 'मासिक भक्ति'
+      },
+      description: {
+        en: 'Deepen your spiritual commitment',
+        hi: 'अपनी आध्यात्मिक प्रतिबद्धता को गहरा करें'
+      },
       icon: Star,
       blessings: [
-        'All weekly blessings',
-        'Monthly special ceremonies',
-        '1-on-1 spiritual guidance',
-        'Exclusive sacred content',
-        'Priority prayer requests',
-        'Digital prasadam'
+        {
+          en: 'All weekly blessings',
+          hi: 'सभी साप्ताहिक आशीर्वाद'
+        },
+        {
+          en: 'Monthly special ceremonies',
+          hi: 'मासिक विशेष समारोह'
+        },
+        {
+          en: '1-on-1 spiritual guidance',
+          hi: 'एक-पर-एक आध्यात्मिक मार्गदर्शन'
+        },
+        {
+          en: 'Exclusive sacred content',
+          hi: 'विशेष पवित्र सामग्री'
+        },
+        {
+          en: 'Priority prayer requests',
+          hi: 'प्राथमिकता प्रार्थना अनुरोध'
+        },
+        {
+          en: 'Digital prasadam',
+          hi: 'डिजिटल प्रसाद'
+        }
       ],
       current: currentSeva === 'monthly',
-      message: 'Monthly devotion brings continuous spiritual growth'
+      message: {
+        en: 'Monthly devotion brings continuous spiritual growth',
+        hi: 'मासिक भक्ति निरंतर आध्यात्मिक विकास लाती है'
+      }
     },
     {
       id: 'yearly',
-      name: 'Annual Seva',
-      amount: '₹5,001',
-      period: 'Yearly commitment',
-      description: 'Embrace complete spiritual partnership',
+      name: {
+        en: 'Annual Seva',
+        hi: 'वार्षिक सेवा'
+      },
+      amount: {
+        en: '₹5,001',
+        hi: '₹5,001'
+      },
+      period: {
+        en: 'Yearly commitment',
+        hi: 'वार्षिक प्रतिबद्धता'
+      },
+      description: {
+        en: 'Embrace complete spiritual partnership',
+        hi: 'पूर्ण आध्यात्मिक साझेदारी को अपनाएं'
+      },
       icon: Sparkles,
       blessings: [
-        'All monthly blessings',
-        'Year-round special pujas',
-        'Personal spiritual mentor',
-        'Master spiritual courses',
-        'Early access to all content',
-        'VIP community access',
-        'Special blessings from guruji'
+        {
+          en: 'All monthly blessings',
+          hi: 'सभी मासिक आशीर्वाद'
+        },
+        {
+          en: 'Year-round special pujas',
+          hi: 'साल भर विशेष पूजाएं'
+        },
+        {
+          en: 'Personal spiritual mentor',
+          hi: 'व्यक्तिगत आध्यात्मिक गुरु'
+        },
+        {
+          en: 'Master spiritual courses',
+          hi: 'मास्टर आध्यात्मिक पाठ्यक्रम'
+        },
+        {
+          en: 'Early access to all content',
+          hi: 'सभी सामग्री तक प्रारंभिक पहुंच'
+        },
+        {
+          en: 'VIP community access',
+          hi: 'वीआईपी समुदाय पहुंच'
+        },
+        {
+          en: 'Special blessings from guruji',
+          hi: 'गुरुजी से विशेष आशीर्वाद'
+        }
       ],
       current: currentSeva === 'yearly',
-      message: 'Annual commitment supports sustained spiritual service'
+      message: {
+        en: 'Annual commitment supports sustained spiritual service',
+        hi: 'वार्षिक प्रतिबद्धता निरंतर आध्यात्मिक सेवा का समर्थन करती है'
+      }
     }
   ];
+
+  const getLocalizedText = (text: { en: string; hi: string }) => {
+    return i18n.language === 'hi' ? text.hi : text.en;
+  };
 
   const getCurrentSevaBadge = () => {
     if (currentSeva === 'basic') return null;
@@ -170,7 +317,9 @@ const Settings: React.FC = () => {
     return (
       <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm mb-4 border border-green-200">
         <IconComponent className="h-4 w-4" />
-        <span>Current Seva: {currentSevaData?.name}</span>
+        <span>
+          {i18n.language === 'hi' ? 'वर्तमान सेवा:' : 'Current Seva:'} {getLocalizedText(currentSevaData?.name || { en: '', hi: '' })}
+        </span>
       </div>
     );
   };
@@ -185,7 +334,7 @@ const Settings: React.FC = () => {
           className="flex items-center gap-2 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          {i18n.language === 'hi' ? 'वापस' : 'Back'}
         </Button>
       </div>
 
@@ -194,10 +343,10 @@ const Settings: React.FC = () => {
           <SettingsIcon className="h-16 w-16 text-primary" />
         </div>
         <h1 className="text-4xl font-bold text-foreground mb-2">
-          Spiritual Settings
+          {i18n.language === 'hi' ? 'आध्यात्मिक सेटिंग्स' : 'Spiritual Settings'}
         </h1>
         <p className="text-muted-foreground">
-          Customize your spiritual journey
+          {i18n.language === 'hi' ? 'अपनी आध्यात्मिक यात्रा को अनुकूलित करें' : 'Customize your spiritual journey'}
         </p>
         {getCurrentSevaBadge()}
       </div>
@@ -209,16 +358,16 @@ const Settings: React.FC = () => {
           <div className="sacred-card p-6">
             <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
               <SettingsIcon className="h-5 w-5" />
-              Language & Display
+              {i18n.language === 'hi' ? 'भाषा और प्रदर्शन' : 'Language & Display'}
             </h2>
             <Select value={language} onValueChange={handleLanguageChange}>
               <SelectTrigger>
-                <SelectValue placeholder="Select language" />
+                <SelectValue placeholder={i18n.language === 'hi' ? 'भाषा चुनें' : 'Select language'} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">English</SelectItem>
                 <SelectItem value="hi">हिंदी</SelectItem>
-                <SelectItem value="sa">संस्कृत</SelectItem>
+                {/* <SelectItem value="sa">संस्कृत</SelectItem> */}
               </SelectContent>
             </Select>
           </div>
@@ -226,21 +375,25 @@ const Settings: React.FC = () => {
           {/* Display Settings */}
           <div className="sacred-card p-6 space-y-6">
             <h2 className="text-xl font-semibold text-foreground mb-4">
-              Accessibility
+              {i18n.language === 'hi' ? 'सुगम्यता' : 'Accessibility'}
             </h2>
             
             <div className="space-y-4">
               <div>
                 <Label htmlFor="fontSize" className="mb-2 block">
-                  Text Size
+                  {i18n.language === 'hi' ? 'टेक्स्ट आकार' : 'Text Size'}
                 </Label>
                 <Select value={fontSize} onValueChange={handleFontSizeChange}>
                   <SelectTrigger id="fontSize">
-                    <SelectValue placeholder="Select text size" />
+                    <SelectValue placeholder={i18n.language === 'hi' ? 'टेक्स्ट आकार चुनें' : 'Select text size'} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="normal">Comfortable</SelectItem>
-                    <SelectItem value="large">Larger (Easier to read)</SelectItem>
+                    <SelectItem value="normal">
+                      {i18n.language === 'hi' ? 'आरामदायक' : 'Comfortable'}
+                    </SelectItem>
+                    <SelectItem value="large">
+                      {i18n.language === 'hi' ? 'बड़ा (पढ़ने में आसान)' : 'Larger (Easier to read)'}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -248,10 +401,10 @@ const Settings: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="reduceMotion" className="block">
-                    Reduce Animations
+                    {i18n.language === 'hi' ? 'एनिमेशन कम करें' : 'Reduce Animations'}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    For a more focused experience
+                    {i18n.language === 'hi' ? 'अधिक केंद्रित अनुभव के लिए' : 'For a more focused experience'}
                   </p>
                 </div>
                 <Switch
@@ -271,11 +424,12 @@ const Settings: React.FC = () => {
               <Heart className="h-8 w-8 text-green-600" />
             </div>
             <h2 className="text-2xl font-semibold text-foreground mb-2">
-              Offer Seva & Support Our Mission
+              {i18n.language === 'hi' ? 'सेवा अर्पित करें और हमारे मिशन का समर्थन करें' : 'Offer Seva & Support Our Mission'}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Your generous support helps us maintain this sacred space, conduct daily prayers, 
-              and create more spiritual content for seekers worldwide. Every contribution is a blessing.
+              {i18n.language === 'hi' 
+                ? 'आपका उदार समर्थन हमें इस पवित्र स्थान को बनाए रखने, दैनिक प्रार्थनाएं आयोजित करने और दुनिया भर के साधकों के लिए अधिक आध्यात्मिक सामग्री बनाने में मदद करता है। प्रत्येक योगदान एक आशीर्वाद है।'
+                : 'Your generous support helps us maintain this sacred space, conduct daily prayers, and create more spiritual content for seekers worldwide. Every contribution is a blessing.'}
             </p>
           </div>
 
@@ -299,22 +453,24 @@ const Settings: React.FC = () => {
                         seva.current ? 'text-green-600' : 'text-amber-600'
                       }`} />
                     </div>
-                    <h3 className="font-semibold text-foreground text-lg">{seva.name}</h3>
+                    <h3 className="font-semibold text-foreground text-lg">{getLocalizedText(seva.name)}</h3>
                     <div className="mt-2">
-                      <span className="text-2xl font-bold text-foreground">{seva.amount}</span>
-                      <span className="text-muted-foreground text-sm block">{seva.period}</span>
+                      <span className="text-2xl font-bold text-foreground">{getLocalizedText(seva.amount)}</span>
+                      <span className="text-muted-foreground text-sm block">{getLocalizedText(seva.period)}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-2 italic">{seva.message}</p>
+                    <p className="text-sm text-muted-foreground mt-2 italic">{getLocalizedText(seva.message)}</p>
                   </div>
 
                   <div className="space-y-2 mb-6">
-                    <div className="text-sm font-medium text-foreground mb-2">Blessings you receive:</div>
+                    <div className="text-sm font-medium text-foreground mb-2">
+                      {i18n.language === 'hi' ? 'आपको मिलने वाले आशीर्वाद:' : 'Blessings you receive:'}
+                    </div>
                     {seva.blessings.map((blessing, index) => (
                       <div key={index} className="flex items-start gap-2 text-sm">
                         <div className={`w-2 h-2 rounded-full mt-1.5 ${
                           seva.current ? 'bg-green-500' : 'bg-amber-500'
                         }`} />
-                        <span>{blessing}</span>
+                        <span>{getLocalizedText(blessing)}</span>
                       </div>
                     ))}
                   </div>
@@ -329,11 +485,11 @@ const Settings: React.FC = () => {
                     disabled={seva.current}
                   >
                     {seva.current ? (
-                      <>🙏 Currently Offering This Seva</>
+                      <>🙏 {i18n.language === 'hi' ? 'वर्तमान में यह सेवा अर्पित कर रहे हैं' : 'Currently Offering This Seva'}</>
                     ) : seva.id === 'basic' ? (
-                      <>Continue with Basic Access</>
+                      <>{i18n.language === 'hi' ? 'मूल पहुंच के साथ जारी रखें' : 'Continue with Basic Access'}</>
                     ) : (
-                      <>Offer {seva.name} Seva</>
+                      <>{i18n.language === 'hi' ? `${getLocalizedText(seva.name)} सेवा अर्पित करें` : `Offer ${getLocalizedText(seva.name)} Seva`}</>
                     )}
                   </Button>
                 </div>
@@ -343,8 +499,9 @@ const Settings: React.FC = () => {
 
           <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
             <p className="text-center text-sm text-blue-800 dark:text-blue-200">
-              💫 <strong>All contributions</strong> are used for temple maintenance, daily prayers, 
-              spiritual content creation, and serving the community. Your seva makes this possible. 🙏
+              {i18n.language === 'hi' 
+                ? '💫 सभी योगदान मंदिर रखरखाव, दैनिक प्रार्थनाओं, आध्यात्मिक सामग्री निर्माण और समुदाय की सेवा के लिए उपयोग किए जाते हैं। आपकी सेवा इसे संभव बनाती है। 🙏'
+                : '💫 All contributions are used for temple maintenance, daily prayers, spiritual content creation, and serving the community. Your seva makes this possible. 🙏'}
             </p>
           </div>
         </div>
@@ -352,7 +509,7 @@ const Settings: React.FC = () => {
         {/* Account Settings */}
         <div className="sacred-card p-6">
           <h2 className="text-xl font-semibold text-foreground mb-4">
-            Account
+            {i18n.language === 'hi' ? 'खाता' : 'Account'}
           </h2>
           <Button
             onClick={handleLogoutClick}
@@ -360,7 +517,7 @@ const Settings: React.FC = () => {
             className="w-full flex items-center justify-center space-x-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
           >
             <LogOut className="h-5 w-5" />
-            <span>Sign Out</span>
+            <span>{i18n.language === 'hi' ? 'साइन आउट' : 'Sign Out'}</span>
           </Button>
         </div>
       </div>
@@ -374,10 +531,14 @@ const Settings: React.FC = () => {
                 <LogOut className="h-8 w-8 text-red-600" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                Are you sure you want to sign out?
+                {i18n.language === 'hi' 
+                  ? 'क्या आप वाकई साइन आउट करना चाहते हैं?'
+                  : 'Are you sure you want to sign out?'}
               </h3>
               <p className="text-muted-foreground text-sm">
-                You will need to sign in again to access your spiritual journey.
+                {i18n.language === 'hi'
+                  ? 'अपनी आध्यात्मिक यात्रा तक पहुंचने के लिए आपको फिर से साइन इन करना होगा।'
+                  : 'You will need to sign in again to access your spiritual journey.'}
               </p>
             </div>
             
@@ -387,13 +548,13 @@ const Settings: React.FC = () => {
                 variant="outline"
                 className="flex-1 border-amber-200 text-amber-700 hover:bg-amber-50"
               >
-                No, Stay Signed In
+                {i18n.language === 'hi' ? 'नहीं, साइन इन रहें' : 'No, Stay Signed In'}
               </Button>
               <Button
                 onClick={confirmLogout}
                 className="flex-1 bg-red-600 text-white hover:bg-red-700"
               >
-                Yes, Sign Out
+                {i18n.language === 'hi' ? 'हाँ, साइन आउट करें' : 'Yes, Sign Out'}
               </Button>
             </div>
           </div>
