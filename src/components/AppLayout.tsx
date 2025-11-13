@@ -244,7 +244,7 @@ const AppLayout: React.FC = () => {
         </aside>
       </div>
 
-      {/* Mobile Ad Banner - Only shown on mobile */}
+      {/* Mobile Ad Banner - Only shown on mobile
       <div className="lg:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 p-2 z-40">
         <div 
           className="flex items-center space-x-3 cursor-pointer"
@@ -273,7 +273,7 @@ const AppLayout: React.FC = () => {
             {t('ads.learnMore')}
           </Button>
         </div>
-      </div>
+      </div> */}
 
       {/* Bottom Navigation (Mobile) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border md:hidden z-50 backdrop-blur-sm bg-card/90">

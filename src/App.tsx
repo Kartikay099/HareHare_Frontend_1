@@ -22,6 +22,9 @@ import Profile from '@/pages/Profile';
 import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
 
+// ⭐ NEW — Chat Page
+import Chat from '@/pages/Chat';
+
 // Import i18n configuration
 import '@/i18n/config';
 
@@ -37,10 +40,13 @@ const App: React.FC = () => {
             <Sonner />
             <BrowserRouter>
               <Routes>
+
+                {/* Public Routes */}
                 <Route path="/" element={<Onboarding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
-                
+
+                {/* Protected App Routes */}
                 <Route
                   path="/app"
                   element={
@@ -57,6 +63,9 @@ const App: React.FC = () => {
                   <Route path="library" element={<Library />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
+
+                  {/* ⭐ NEW CHAT ROUTE */}
+                  <Route path="chat" element={<Chat />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
