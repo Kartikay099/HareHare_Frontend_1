@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -12,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Settings as SettingsIcon, LogOut, Heart, Flower, Star, Sparkles, ArrowLeft } from 'lucide-react';
+import { Settings as SettingsIcon, LogOut, Heart, Flower, Star, Sparkles, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Settings: React.FC = () => {
@@ -21,27 +19,12 @@ const Settings: React.FC = () => {
   const navigate = useNavigate();
   
   const [language, setLanguage] = useState(i18n.language);
-  const [fontSize, setFontSize] = useState(localStorage.getItem('fontSize') || 'normal');
-  const [reduceMotion, setReduceMotion] = useState(
-    localStorage.getItem('reduceMotion') === 'true'
-  );
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   // Simple state for seva - not dependent on user object
   const [currentSeva, setCurrentSeva] = useState('basic');
   const [sevaStatus, setSevaStatus] = useState('active');
-
-  useEffect(() => {
-    document.documentElement.style.fontSize = fontSize === 'large' ? '18px' : '16px';
-  }, [fontSize]);
-
-  useEffect(() => {
-    if (reduceMotion) {
-      document.documentElement.classList.add('reduce-motion');
-    } else {
-      document.documentElement.classList.remove('reduce-motion');
-    }
-  }, [reduceMotion]);
 
   const handleBackClick = () => {
     navigate(-1);
@@ -52,22 +35,6 @@ const Settings: React.FC = () => {
     i18n.changeLanguage(newLang);
     localStorage.setItem('language', newLang);
     toast.success(i18n.language === 'hi' ? 'भाषा अपडेट हो गई' : 'Language updated');
-  };
-
-  const handleFontSizeChange = (size: string) => {
-    setFontSize(size);
-    localStorage.setItem('fontSize', size);
-    toast.success(i18n.language === 'hi' ? 'फ़ॉन्ट आकार अपडेट हो गया' : 'Font size updated');
-  };
-
-  const handleMotionChange = (checked: boolean) => {
-    setReduceMotion(checked);
-    localStorage.setItem('reduceMotion', String(checked));
-    toast.success(
-      checked 
-        ? (i18n.language === 'hi' ? 'एनिमेशन कम किए गए' : 'Animations reduced')
-        : (i18n.language === 'hi' ? 'एनिमेशन सक्षम किए गए' : 'Animations enabled')
-    );
   };
 
   const handleLogoutClick = () => {
@@ -324,6 +291,22 @@ const Settings: React.FC = () => {
     );
   };
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % sevaLevels.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + sevaLevels.length) % sevaLevels.length);
+  };
+
+  // Auto-slide functionality
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % sevaLevels.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
       {/* Back Button - Top Left */}
@@ -352,72 +335,24 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="space-y-6">
-        {/* Personal Settings First */}
-        <div className="space-y-4">
-          {/* Language Settings */}
-          <div className="sacred-card p-6">
-            <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
-              <SettingsIcon className="h-5 w-5" />
-              {i18n.language === 'hi' ? 'भाषा और प्रदर्शन' : 'Language & Display'}
-            </h2>
-            <Select value={language} onValueChange={handleLanguageChange}>
-              <SelectTrigger>
-                <SelectValue placeholder={i18n.language === 'hi' ? 'भाषा चुनें' : 'Select language'} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="hi">हिंदी</SelectItem>
-                {/* <SelectItem value="sa">संस्कृत</SelectItem> */}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Display Settings */}
-          <div className="sacred-card p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-foreground mb-4">
-              {i18n.language === 'hi' ? 'सुगम्यता' : 'Accessibility'}
-            </h2>
-            
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="fontSize" className="mb-2 block">
-                  {i18n.language === 'hi' ? 'टेक्स्ट आकार' : 'Text Size'}
-                </Label>
-                <Select value={fontSize} onValueChange={handleFontSizeChange}>
-                  <SelectTrigger id="fontSize">
-                    <SelectValue placeholder={i18n.language === 'hi' ? 'टेक्स्ट आकार चुनें' : 'Select text size'} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="normal">
-                      {i18n.language === 'hi' ? 'आरामदायक' : 'Comfortable'}
-                    </SelectItem>
-                    <SelectItem value="large">
-                      {i18n.language === 'hi' ? 'बड़ा (पढ़ने में आसान)' : 'Larger (Easier to read)'}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="reduceMotion" className="block">
-                    {i18n.language === 'hi' ? 'एनिमेशन कम करें' : 'Reduce Animations'}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {i18n.language === 'hi' ? 'अधिक केंद्रित अनुभव के लिए' : 'For a more focused experience'}
-                  </p>
-                </div>
-                <Switch
-                  id="reduceMotion"
-                  checked={reduceMotion}
-                  onCheckedChange={handleMotionChange}
-                />
-              </div>
-            </div>
-          </div>
+        {/* Language Settings */}
+        <div className="sacred-card p-6">
+          <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+            <SettingsIcon className="h-5 w-5" />
+            {i18n.language === 'hi' ? 'भाषा' : 'Language'}
+          </h2>
+          <Select value={language} onValueChange={handleLanguageChange}>
+            <SelectTrigger>
+              <SelectValue placeholder={i18n.language === 'hi' ? 'भाषा चुनें' : 'Select language'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="hi">हिंदी</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Seva Offering Section */}
+        {/* Seva Offering Section - Slider */}
         <div className="sacred-card p-6">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
@@ -433,68 +368,112 @@ const Settings: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {sevaLevels.map((seva) => {
-              const IconComponent = seva.icon;
-              return (
-                <div
-                  key={seva.id}
-                  className={`border rounded-xl p-6 transition-all ${
-                    seva.current
-                      ? 'border-green-500 bg-green-50/50 dark:bg-green-900/20 ring-2 ring-green-200'
-                      : 'border-amber-200 bg-amber-50/30 dark:bg-amber-900/10 hover:border-amber-300'
-                  }`}
-                >
-                  <div className="text-center mb-4">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${
-                      seva.current ? 'bg-green-100' : 'bg-amber-100'
-                    }`}>
-                      <IconComponent className={`h-6 w-6 ${
-                        seva.current ? 'text-green-600' : 'text-amber-600'
-                      }`} />
-                    </div>
-                    <h3 className="font-semibold text-foreground text-lg">{getLocalizedText(seva.name)}</h3>
-                    <div className="mt-2">
-                      <span className="text-2xl font-bold text-foreground">{getLocalizedText(seva.amount)}</span>
-                      <span className="text-muted-foreground text-sm block">{getLocalizedText(seva.period)}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2 italic">{getLocalizedText(seva.message)}</p>
-                  </div>
+          {/* Slider Container */}
+          <div className="relative">
+            {/* Slider Controls */}
+            <div className="flex justify-between items-center mb-6">
+              <Button
+                onClick={prevSlide}
+                variant="outline"
+                size="icon"
+                className="w-10 h-10 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex space-x-2">
+                {sevaLevels.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === currentSlide ? 'bg-amber-600' : 'bg-amber-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              
+              <Button
+                onClick={nextSlide}
+                variant="outline"
+                size="icon"
+                className="w-10 h-10 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
 
-                  <div className="space-y-2 mb-6">
-                    <div className="text-sm font-medium text-foreground mb-2">
-                      {i18n.language === 'hi' ? 'आपको मिलने वाले आशीर्वाद:' : 'Blessings you receive:'}
-                    </div>
-                    {seva.blessings.map((blessing, index) => (
-                      <div key={index} className="flex items-start gap-2 text-sm">
-                        <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                          seva.current ? 'bg-green-500' : 'bg-amber-500'
-                        }`} />
-                        <span>{getLocalizedText(blessing)}</span>
+            {/* Slider Content */}
+            <div className="relative overflow-hidden rounded-xl">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {sevaLevels.map((seva) => {
+                  const IconComponent = seva.icon;
+                  return (
+                    <div
+                      key={seva.id}
+                      className="w-full flex-shrink-0 px-4"
+                    >
+                      <div className={`border rounded-xl p-6 transition-all ${
+                        seva.current
+                          ? 'border-green-500 bg-green-50/50 dark:bg-green-900/20 ring-2 ring-green-200'
+                          : 'border-amber-200 bg-amber-50/30 dark:bg-amber-900/10 hover:border-amber-300'
+                      }`}>
+                        <div className="text-center mb-4">
+                          <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${
+                            seva.current ? 'bg-green-100' : 'bg-amber-100'
+                          }`}>
+                            <IconComponent className={`h-6 w-6 ${
+                              seva.current ? 'text-green-600' : 'text-amber-600'
+                            }`} />
+                          </div>
+                          <h3 className="font-semibold text-foreground text-lg">{getLocalizedText(seva.name)}</h3>
+                          <div className="mt-2">
+                            <span className="text-2xl font-bold text-foreground">{getLocalizedText(seva.amount)}</span>
+                            <span className="text-muted-foreground text-sm block">{getLocalizedText(seva.period)}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-2 italic">{getLocalizedText(seva.message)}</p>
+                        </div>
+
+                        <div className="space-y-2 mb-6">
+                          <div className="text-sm font-medium text-foreground mb-2">
+                            {i18n.language === 'hi' ? 'आपको मिलने वाले आशीर्वाद:' : 'Blessings you receive:'}
+                          </div>
+                          {seva.blessings.map((blessing, index) => (
+                            <div key={index} className="flex items-start gap-2 text-sm">
+                              <div className={`w-2 h-2 rounded-full mt-1.5 ${
+                                seva.current ? 'bg-green-500' : 'bg-amber-500'
+                              }`} />
+                              <span>{getLocalizedText(blessing)}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <Button
+                          onClick={() => offerSeva(seva.id)}
+                          className={`w-full ${
+                            seva.current
+                              ? 'bg-green-600 hover:bg-green-700'
+                              : 'bg-amber-600 hover:bg-amber-700'
+                          } text-white`}
+                          disabled={seva.current}
+                        >
+                          {seva.current ? (
+                            <>🙏 {i18n.language === 'hi' ? 'वर्तमान में यह सेवा अर्पित कर रहे हैं' : 'Currently Offering This Seva'}</>
+                          ) : seva.id === 'basic' ? (
+                            <>{i18n.language === 'hi' ? 'मूल पहुंच के साथ जारी रखें' : 'Continue with Basic Access'}</>
+                          ) : (
+                            <>{i18n.language === 'hi' ? `${getLocalizedText(seva.name)} सेवा अर्पित करें` : `Offer ${getLocalizedText(seva.name)} Seva`}</>
+                          )}
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-
-                  <Button
-                    onClick={() => offerSeva(seva.id)}
-                    className={`w-full ${
-                      seva.current
-                        ? 'bg-green-600 hover:bg-green-700'
-                        : 'bg-amber-600 hover:bg-amber-700'
-                    } text-white`}
-                    disabled={seva.current}
-                  >
-                    {seva.current ? (
-                      <>🙏 {i18n.language === 'hi' ? 'वर्तमान में यह सेवा अर्पित कर रहे हैं' : 'Currently Offering This Seva'}</>
-                    ) : seva.id === 'basic' ? (
-                      <>{i18n.language === 'hi' ? 'मूल पहुंच के साथ जारी रखें' : 'Continue with Basic Access'}</>
-                    ) : (
-                      <>{i18n.language === 'hi' ? `${getLocalizedText(seva.name)} सेवा अर्पित करें` : `Offer ${getLocalizedText(seva.name)} Seva`}</>
-                    )}
-                  </Button>
-                </div>
-              );
-            })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
