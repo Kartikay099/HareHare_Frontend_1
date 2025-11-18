@@ -27,7 +27,7 @@ const Onboarding: React.FC = () => {
     'ॐ शान्ति', 'ॐ नमः शिवाय', 'हरे कृष्ण', 'गुरुर्ब्रह्मा',
     'ॐ साई राम', 'जय श्री राम', 'सीता राम', 'ॐ गं गणपतये',
     'शुभम करोति', 'सर्वम् शिवम', 'माता की जय', 'हनुमान बलवीर',
-    'जय माता दी', 'ॐ ह्रीं दुर्गायै', 'राम नाम सत्य है',
+    'जय माता दी', 'ॐ ह्रीं दुर्गायै',
     'हर हर महादेव', 'वक्रतुंड महाकाय', 'ॐ श्री महालक्ष्म्यै',
     'जय जय श्री कृष्ण', 'सत्यं शिवं सुंदरम'
   ];
@@ -45,7 +45,7 @@ const Onboarding: React.FC = () => {
     const navigationTimer = setTimeout(() => {
       if (isAuthenticated) navigate('/app/home', { replace: true });
       else navigate('/auth/login', { replace: true });
-    }, 6000);
+    }, 10000);
 
     return () => {
       logoTimers.forEach(timer => clearTimeout(timer));
@@ -82,7 +82,7 @@ const Onboarding: React.FC = () => {
           </h1>
 
           <div className="mb-8">
-            <p className="text-b text-gray-600 mb-4 font-xl"><b>Recognized by prestigious temples</b></p>
+            <p className="text-b text-gray-600 mb-4 font-xl"><b>Supported by prestigious temples</b></p>
             <div className="flex justify-center items-center space-x-6">
               {[1, 2, 3].map((num, index) => (
                 <div 

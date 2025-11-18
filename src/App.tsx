@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
@@ -21,11 +21,12 @@ import Library from '@/pages/Library';
 import Profile from '@/pages/Profile';
 import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
-
-// ⭐ NEW — Chat Page
 import Chat from '@/pages/Chat';
 
-// Import i18n configuration
+// ⭐ New Added Page
+import Privacy from '@/pages/Privacy';
+
+// i18n config
 import '@/i18n/config';
 
 const queryClient = new QueryClient();
@@ -38,15 +39,16 @@ const App: React.FC = () => {
           <AuthProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <HashRouter>
               <Routes>
 
-                {/* Public Routes */}
+                {/* Public */}
                 <Route path="/" element={<Onboarding />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
+                <Route path="/privacy" element={<Privacy />} />
 
-                {/* Protected App Routes */}
+                {/* Protected */}
                 <Route
                   path="/app"
                   element={
@@ -63,14 +65,12 @@ const App: React.FC = () => {
                   <Route path="library" element={<Library />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
-
-                  {/* ⭐ NEW CHAT ROUTE */}
                   <Route path="chat" element={<Chat />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </BrowserRouter>
+            </HashRouter>
           </AuthProvider>
         </TooltipProvider>
       </QueryClientProvider>

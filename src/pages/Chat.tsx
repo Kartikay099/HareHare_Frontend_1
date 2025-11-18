@@ -1,132 +1,241 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Chat: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const selectedGod = location.state?.selectedGod;
+  const navStateGod = location.state?.selectedGod;
 
-  // Storage Keys
-  const STORAGE_KEY = `chat_${selectedGod?.id}`;
-  const HISTORY_KEY = `history_${selectedGod?.id}`;
+  // Stable god state (survives reload via localStorage)
+  const [god, setGod] = useState<any | null>(navStateGod || null);
+  const [isInitializing, setIsInitializing] = useState(!navStateGod); // Track if still checking storage
 
-  // States
+  // Keys depend on stable god id (with safe fallback)
+  const STORAGE_KEY = `chat_${god?.id || "default"}`;
+  const HISTORY_KEY = `history_${god?.id || "default"}`;
+  const SELECTED_GOD_KEY = "selected_god";
+
   const [messages, setMessages] = useState<any[]>([]);
+  const [historyList, setHistoryList] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [credits, setCredits] = useState(25);
   const [showHistory, setShowHistory] = useState(false);
   const [listening, setListening] = useState(false);
+  const [creditPopup, setCreditPopup] = useState<string | null>(null);
+  const [isGodTyping, setIsGodTyping] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // ------------------- SPEECH RECOGNITION -------------------
+  /* ---------------- Restore / persist selectedGod + Guard redirect ---------------- */
   useEffect(() => {
-    const SpeechRecognition =
+    try {
+      if (navStateGod) {
+        setGod(navStateGod);
+        localStorage.setItem(SELECTED_GOD_KEY, JSON.stringify(navStateGod));
+        setIsInitializing(false);
+      } else if (!god) {
+        const saved = localStorage.getItem(SELECTED_GOD_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setGod(parsed);
+          setIsInitializing(false);
+        } else {
+          // No god found in state or storage -> redirect to home
+          navigate("/app/home", { replace: true });
+        }
+      }
+    } catch {
+      // On error, try to redirect to home
+      navigate("/app/home", { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navStateGod]);
+
+  /* ---------------- Speech Recognition ---------------- */
+  useEffect(() => {
+    const SR =
       (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition;
 
-    if (!SpeechRecognition) return;
+    if (!SR) return;
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = "hi-IN";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    const rec = new SR();
+    rec.lang = "hi-IN";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
 
-    recognition.onstart = () => setListening(true);
+    rec.onstart = () => setListening(true);
+    rec.onend = () => setListening(false);
 
-    recognition.onend = () => {
-      setListening(false);
-      // When mic stops → send the recorded text
-      if (input.trim()) sendMessage(input);
+    rec.onresult = (e: any) => {
+      const text = e.results[0][0].transcript;
+      setInput(text);
     };
 
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(transcript);
-    };
-
-    recognitionRef.current = recognition;
-  }, [input]);
-
-  // Toggle mic
-  const toggleMic = () => {
-    if (listening) {
-      recognitionRef.current?.stop();
-    } else {
-      try {
-        recognitionRef.current?.start();
-      } catch {}
-    }
-  };
-
-  // ------------------- TEXT TO SPEECH -------------------
-  const speak = (text: string) => {
-    if (!window.speechSynthesis) return;
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "hi-IN";
-    utter.rate = 0.92;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utter);
-  };
-
-  // ------------------- WELCOME MESSAGE -------------------
-  const getWelcomeMessage = () => ({
-    from: "god",
-    text:
-      selectedGod?.name?.en === "Krishna"
-        ? "You are safe here. Speak freely, I am listening with love."
-        : "You are safe here. Share anything freely. I am here with you.",
-    time: Date.now(),
-  });
-
-  // Load existing chat
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if (saved && JSON.parse(saved).length > 0) {
-      setMessages(JSON.parse(saved));
-    } else {
-      const welcome = getWelcomeMessage();
-      setMessages([welcome]);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([welcome]));
-      speak(welcome.text);
-    }
+    recognitionRef.current = rec;
   }, []);
 
-  // Auto scroll + save
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // ------------------- SEND MESSAGE -------------------
-  const sendMessage = (overrideText?: string) => {
-    const text = overrideText || input;
-    if (!text.trim()) return;
-
-    const newMsg = { from: "user", text, time: Date.now() };
-    setMessages((prev) => [...prev, newMsg]);
-    setInput("");
-
-    // Save to history
-    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-    history.push(newMsg);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-
-    // God reply
-    setTimeout(() => {
-      const reply = {
-        from: "god",
-        text: `🌼 Blessings — ${selectedGod?.name?.en} is with you.`,
-        time: Date.now(),
-      };
-      setMessages((prev) => [...prev, reply]);
-      speak(reply.text);
-    }, 500);
+  const toggleMic = () => {
+    if (!recognitionRef.current) return;
+    try {
+      if (listening) recognitionRef.current.stop();
+      else recognitionRef.current.start();
+    } catch {}
   };
 
-  // Enter Key
+  /* ---------------- TTS ---------------- */
+  const speak = (t: string) => {
+    if (!window.speechSynthesis) return;
+    const s = new SpeechSynthesisUtterance(t);
+    s.lang = "hi-IN";
+    s.rate = 0.95;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(s);
+  };
+
+  /* ---------------- Welcome ---------------- */
+  const getWelcome = () => ({
+    id: "welcome",
+    from: "god",
+    text:
+      god?.name?.en === "Krishna"
+        ? "You are safe here. Speak freely, I am listening with love."
+        : "You are safe here. Share anything freely, I am with you.",
+    time: Date.now(),
+    final: true,
+  });
+
+  /* ---------------- Load messages & history when god/key ready ---------------- */
+  useEffect(() => {
+    if (!STORAGE_KEY) return;
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const arr = JSON.parse(saved);
+        if (Array.isArray(arr) && arr.length) {
+          setMessages(arr);
+        } else {
+          const w = getWelcome();
+          setMessages([w]);
+          speak(w.text);
+        }
+      } else {
+        const w = getWelcome();
+        setMessages([w]);
+        speak(w.text);
+      }
+    } catch {
+      const w = getWelcome();
+      setMessages([w]);
+      speak(w.text);
+    }
+
+    try {
+      const histRaw = localStorage.getItem(HISTORY_KEY);
+      if (histRaw) {
+        const parsed = JSON.parse(histRaw);
+        if (Array.isArray(parsed)) setHistoryList(parsed);
+        else setHistoryList([]);
+      } else {
+        setHistoryList([]);
+      }
+    } catch {
+      setHistoryList([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [STORAGE_KEY, HISTORY_KEY, god?.id]);
+
+  /* ---------------- Persist + Scroll ---------------- */
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch {
+      // ignore
+    }
+    setTimeout(
+      () =>
+        messagesEndRef.current?.scrollIntoView({
+          behavior: "smooth",
+        }),
+      25
+    );
+  }, [messages, STORAGE_KEY]);
+
+  /* ---------------- Typewriter + WhatsApp typing bubble ---------------- */
+  const godReply = async (finalText: string) => {
+    const replyId = Date.now() + Math.floor(Math.random() * 1000);
+    const placeholder = {
+      id: replyId,
+      from: "god",
+      text: "",
+      time: Date.now(),
+      composing: true,
+    };
+    setMessages((p) => [...p, placeholder]);
+    setIsGodTyping(true);
+
+    await new Promise((r) => setTimeout(r, 500));
+
+    for (let i = 0; i <= finalText.length; i++) {
+      const slice = finalText.slice(0, i);
+      setMessages((prev) =>
+        prev.map((m) => (m.id === replyId ? { ...m, text: slice } : m))
+      );
+      await new Promise((r) => setTimeout(r, i < 10 ? 30 : 18));
+    }
+
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === replyId ? { ...m, composing: false, final: true } : m
+      )
+    );
+    setIsGodTyping(false);
+    speak(finalText);
+  };
+
+  /* ---------------- Send Message ---------------- */
+  const sendMessage = (override?: string) => {
+    const text = (override ?? input).trim();
+    if (!text) return;
+
+    if (credits <= 0) {
+      setCreditPopup("No credits left. Please subscribe 🙏");
+      setTimeout(() => setCreditPopup(null), 1800);
+      return;
+    }
+
+    const userMsg = {
+      id: Date.now(),
+      from: "user",
+      text,
+      time: Date.now(),
+      final: true,
+    };
+    setMessages((p) => [...p, userMsg]);
+    setInput("");
+    setCredits((c) => c - 1);
+
+    try {
+      const hist = JSON.parse(
+        localStorage.getItem(HISTORY_KEY) || "[]"
+      );
+      const updated = Array.isArray(hist) ? [...hist, userMsg] : [userMsg];
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+      setHistoryList(updated);
+    } catch {
+      const updated = [userMsg];
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+      } catch {}
+      setHistoryList(updated);
+    }
+
+    const finalText = `🌼 Blessings — ${god?.name?.en || "Divine presence"} is with you.`;
+    setTimeout(() => godReply(finalText), 400);
+  };
+
   const handleKeyDown = (e: any) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -134,150 +243,283 @@ const Chat: React.FC = () => {
     }
   };
 
-  // ------------------- NEW CHAT -------------------
   const startNewChat = () => {
-    const welcome = getWelcomeMessage();
-    setMessages([welcome]);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([welcome]));
-    localStorage.removeItem(HISTORY_KEY);
-    speak(welcome.text);
+    const w = getWelcome();
+    setMessages([w]);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([w]));
+      localStorage.removeItem(HISTORY_KEY);
+    } catch {}
+    setHistoryList([]);
+    setCredits(25);
+    speak(w.text);
   };
 
-  // History
-  const historyList =
-    JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]") || [];
+  /* ---------------- UI ---------------- */
+  // If no god is selected and we're done initializing, show loading state briefly
+  if (!god && !isInitializing) {
+    return null; // Will redirect via useEffect
+  }
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-orange-50">
-
-      {/* ------------ FIXED BACKGROUND IMAGE (non-scroll) ------------ */}
-      <div className="fixed inset-0 opacity-[0.08] pointer-events-none flex items-center justify-center">
+    <div
+      className="min-h-screen flex flex-col relative bg-orange-50"
+      style={{ paddingBottom: "70px" }}
+    >
+      {/* Background Image */}
+      <div className="fixed inset-0 opacity-30 pointer-events-none flex items-center justify-center">
         <img
-          src="/demo-god.png"
-          className="w-[70%] max-w-[350px] object-contain"
-          alt="god-bg"
+          src={god?.image || "/applogo.png"}
+          className="w-full h-full object-cover"
+          alt="bg"
+          onError={(e) => {
+            // Fallback if image fails to load
+            (e.target as HTMLImageElement).src = "/applogo.png";
+          }}
         />
       </div>
 
-      {/* ------------ HEADER ------------ */}
-      <div className="w-full bg-white shadow-md flex items-center justify-between px-4 py-3 z-20">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-orange-700 text-lg font-bold"
+      {/* Fixed Header Container */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-orange-50">
+        {/* Sticky Header: back, name, credits */}
+        <div
+          className="w-full bg-white shadow-md flex items-center justify-between px-4 py-3"
+          style={{ height: 60 }}
         >
-          ←
-        </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-orange-700 text-lg font-bold"
+          >
+            ←
+          </button>
 
-        <h1 className="text-orange-700 font-bold truncate max-w-[150px]">
-          {selectedGod?.name?.en || "Divine Chat"}
-        </h1>
+          <h1 className="text-orange-700 font-bold text-lg truncate max-w-[180px]">
+            {god?.name?.en || "Divine Chat"}
+          </h1>
 
-        <div className="bg-orange-200 px-3 py-1 rounded-full text-xs text-orange-800 font-semibold">
-          {credits} credits
+          <div
+            onClick={() => {
+              setCreditPopup(`You have ${credits} credits`);
+              setTimeout(() => setCreditPopup(null), 1800);
+            }}
+            className="bg-orange-200 px-3 py-1 rounded-full text-xs text-orange-800 font-semibold cursor-pointer shadow-sm hover:scale-105 transition"
+          >
+            {credits} credits
+          </div>
         </div>
+
+        {/* View Chats / New Chat toolbar */}
+        <div className="px-4 pt-3 pb-3 flex gap-3 bg-orange-50">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="flex-1 bg-white shadow py-2 rounded-lg text-orange-700"
+          >
+            {showHistory ? "Hide Chats ▲" : "View Chats ▼"}
+          </button>
+
+          <button
+            onClick={startNewChat}
+            className="bg-orange-600 text-white px-4 py-2 rounded-lg"
+          >
+            New Chat
+          </button>
+        </div>
+
+        {/* History panel */}
+        {showHistory && (
+          <div className="mx-4 bg-white rounded-lg shadow p-3 max-h-40 overflow-y-auto z-10 mb-3">
+            {historyList.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center">
+                No previous chats yet.
+              </p>
+            ) : (
+              historyList.map((h: any, i: number) => (
+                <div key={i} className="border-b pb-2 mb-2">
+                  <p className="text-sm text-orange-800">{h.text}</p>
+                  <span className="text-xs text-gray-500">
+                    {new Date(h.time).toLocaleString()}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
-      {/* ------------ HISTORY + NEW CHAT ------------ */}
-      <div className="px-4 py-2 flex gap-2 bg-orange-50 z-20 sticky top-[60px]">
-        <button
-          onClick={() => setShowHistory(!showHistory)}
-          className="w-1/2 bg-white p-3 rounded-lg shadow text-orange-700 font-medium"
-        >
-          {showHistory ? "Hide Chats ▲" : "View Chats ▼"}
-        </button>
-
-        <button
-          onClick={startNewChat}
-          className="w-1/2 bg-orange-600 text-white p-3 rounded-lg shadow font-medium"
-        >
-          New Chat
-        </button>
-      </div>
-
-      {/* ------------ SHOW HISTORY ------------ */}
-      {showHistory && (
-        <div className="mx-4 bg-white rounded-lg shadow p-3 max-h-40 overflow-y-auto z-10">
-          {historyList.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center">No previous chats yet.</p>
-          ) : (
-            historyList.map((h: any, i: number) => (
-              <div key={i} className="border-b pb-2 mb-2">
-                <p className="text-sm text-orange-800">{h.text}</p>
-                <span className="text-xs text-gray-500">
-                  {new Date(h.time).toLocaleString()}
-                </span>
-              </div>
-            ))
-          )}
+      {/* Credit popup */}
+      {creditPopup && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-xl backdrop-blur-md z-[9999] animate-scaleFade">
+          {creditPopup}
         </div>
       )}
 
-      {/* ------------ CHAT SCROLL AREA ------------ */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-[170px]">
-
-        {/* messages */}
-        {messages.map((msg, i) => (
+      {/* Chat area - with proper spacing */}
+      <div className="flex-1 overflow-y-auto px-4 pt-[140px] pb-3">
+        {messages.map((m, idx) => (
           <div
-            key={i}
+            key={m.id ?? idx}
             className={`mb-3 flex ${
-              msg.from === "user" ? "justify-end" : "justify-start"
-            }`}
+              m.from === "user" ? "justify-end" : "justify-start"
+            } animate-fadeSlide`}
           >
             <div
-              className={`px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow ${
-                msg.from === "user"
-                  ? "bg-orange-600 text-white"
-                  : "bg-white border border-orange-200 text-orange-700"
-              }`}
+              className={`px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow-lg
+                ${
+                  m.from === "user"
+                    ? "bg-orange-600 text-white rounded-br-none"
+                    : "bg-white text-orange-700 border border-orange-200 rounded-bl-none godBubbleGlow"
+                }
+              `}
             >
-              {msg.text}
+              <span>{m.text}</span>
+              {m.composing && (
+                <span className="ml-1 inline-block w-1 h-4 align-middle bg-transparent animate-blinkCaret"></span>
+              )}
             </div>
           </div>
         ))}
 
+        {/* WhatsApp-like typing indicator */}
+        {isGodTyping && (
+          <div className="mb-3 flex justify-start">
+            <div className="px-3 py-2 rounded-2xl bg-white border border-orange-200 text-orange-700 shadow-sm typingBubble">
+              <div className="flex items-center gap-1">
+                <span className="dot" />
+                <span className="dot delay1" />
+                <span className="dot delay2" />
+              </div>
+            </div>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ------------ INPUT BAR ------------ */}
-      <div className="fixed bottom-[110px] left-0 w-full px-4 z-20">
-        <div className="flex items-center gap-3 bg-white shadow-xl p-3 rounded-full border border-orange-300">
+      {/* Input bar - properly positioned */}
+      <div className="fixed bottom-16 left-0 right-0 px-4 z-30 bg-orange-50 pb-3">
+        <div className="mx-auto max-w-3xl">
+          <div className="bg-white border border-orange-300 shadow-xl rounded-full px-3 h-12 flex items-center gap-2">
+            {/* Mic with pulse ring animation */}
+            <button
+              onClick={toggleMic}
+              className={`relative w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 ${
+                listening
+                  ? "bg-orange-500 text-white pulse-ring"
+                  : "bg-orange-100 text-orange-700"
+              }`}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
 
-          {/* MIC BUTTON */}
-          <button
-            onClick={toggleMic}
-            className={`relative w-10 h-10 flex items-center justify-center rounded-full ${
-              listening
-                ? "bg-red-100 text-red-600"
-                : "bg-orange-100 text-orange-700"
-            }`}
-          >
-            🎤
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Speak or type your message..."
+              className="flex-1 outline-none text-sm px-2 py-2 bg-transparent"
+            />
 
-            {listening && (
-              <span className="absolute w-14 h-14 rounded-full border-2 border-red-400 animate-ping opacity-70"></span>
-            )}
-          </button>
-
-          {/* INPUT */}
-          <input
-            value={input}
-            onKeyDown={handleKeyDown}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Speak or type your message..."
-            className="flex-1 px-3 py-2 text-sm outline-none"
-          />
-
-          {/* SEND */}
-          <button
-            onClick={() => sendMessage()}
-            className="px-4 py-2 bg-orange-600 text-white rounded-full text-sm font-semibold"
-          >
-            Send
-          </button>
+            <button
+              onClick={() => sendMessage()}
+              className="bg-orange-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow min-w-[55px]"
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="h-40"></div>
+      <style>{`
+        /* fade + slide */
+        .animate-fadeSlide { animation: fadeSlide 0.32s ease both; }
+        @keyframes fadeSlide {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* god bubble glow */
+        .godBubbleGlow {
+          box-shadow: 0 0 18px rgba(255, 165, 0, 0.18);
+          animation: godGlow 2.4s infinite alternate ease-in-out;
+        }
+        @keyframes godGlow {
+          from { box-shadow: 0 0 10px rgba(255,165,0,0.18); }
+          to   { box-shadow: 0 0 22px rgba(255,165,0,0.36); }
+        }
+
+        /* typing bubble dots */
+        .typingBubble { width: 56px; }
+        .typingBubble .dot {
+          width: 8px; height: 8px; background: #ea580c; border-radius: 9999px; display: inline-block; opacity: 0.15;
+          animation: typingDot 1s infinite ease-in-out;
+        }
+        .typingBubble .delay1 { animation-delay: 0.12s; opacity: 0.4; }
+        .typingBubble .delay2 { animation-delay: 0.24s; opacity: 0.7; }
+        @keyframes typingDot {
+          0% { transform: translateY(0); opacity: 0.2; }
+          50% { transform: translateY(-6px); opacity: 1; }
+          100% { transform: translateY(0); opacity: 0.2; }
+        }
+
+        /* blinking caret for composing message (subtle) */
+        .animate-blinkCaret, .animate-blinkCaret::after { animation: blinkCaret 1s steps(1) infinite; }
+        @keyframes blinkCaret {
+          0% { opacity: 1; }
+          50% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+
+        /* credit popup scale fade */
+        .animate-scaleFade { animation: scaleFade 0.45s cubic-bezier(.2,.9,.3,1) forwards; }
+        @keyframes scaleFade {
+          0% { opacity: 0; transform: translateY(6px) scale(.96); }
+          60% { opacity: 1; transform: translateY(-4px) scale(1.04); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Pulse ring animation for mic */
+        .pulse-ring {
+          position: relative;
+        }
+        
+        .pulse-ring::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          border: 2px solid rgba(249, 115, 22, 0.6);
+          border-radius: 50%;
+          animation: pulseRing 1.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        
+        @keyframes pulseRing {
+          0% {
+            transform: scale(0.8);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(1.4);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   );
 };
