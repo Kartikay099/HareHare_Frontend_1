@@ -18,8 +18,8 @@ const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [language, setLanguage] = useState('en');
-  const [dob, setDob] = useState('');
+  const [preferred_language, setPreferredLanguage] = useState('');
+  const [date_of_birth, setDateOfBirth] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -64,11 +64,13 @@ const Register: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (email && !emailRegex.test(email)) {
-      toast.error('Please enter a valid email address');
-      return;
+    // Email validation - only if email is provided
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        toast.error('Please enter a valid email address');
+        return;
+      }
     }
 
     // Phone validation
@@ -79,8 +81,8 @@ const Register: React.FC = () => {
     }
 
     // DOB Validation
-    if (dob) {
-      const dobDate = new Date(dob);
+    if (date_of_birth) {
+      const dobDate = new Date(date_of_birth);
       const today = new Date();
       if (dobDate >= today) {
         toast.error('Date of birth cannot be in the future');
@@ -100,13 +102,34 @@ const Register: React.FC = () => {
       return;
     }
 
+    // Required fields validation
+    if (!name.trim()) {
+      toast.error('Please enter your full name');
+      return;
+    }
+
+    if (!preferred_language) {
+      toast.error('Please select your preferred language');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await register({ name, phone });
+      // Prepare data for backend
+      const userData = {
+        name: name.trim(),
+        phone,
+        preferred_language: preferred_language || 'en',
+        email: email.trim() || null, // Send null if empty
+        date_of_birth: date_of_birth || null // Send null if empty
+      };
+
+      await register(userData);
       toast.success(t('auth.registerSuccess') || 'Registration successful!');
       navigate('/app/home', { replace: true });
     } catch (error: any) {
+      console.error('Registration error:', error);
       toast.error(error.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -155,7 +178,7 @@ const Register: React.FC = () => {
             <Input
               id="email"
               type="email"
-              placeholder="your.email@example.com"
+              placeholder="your.email@example.com (optional)"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
@@ -185,7 +208,7 @@ const Register: React.FC = () => {
           {/* Language */}
           <div className="space-y-2">
             <Label>Preferred Language *</Label>
-            <Select value={language} onValueChange={setLanguage} disabled={loading}>
+            <Select value={preferred_language} onValueChange={setPreferredLanguage} disabled={loading}>
               <SelectTrigger>
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
@@ -199,12 +222,12 @@ const Register: React.FC = () => {
 
           {/* DOB */}
           <div className="space-y-2">
-            <Label htmlFor="dob">Date of Birth</Label>
+            <Label htmlFor="date_of_birth">Date of Birth</Label>
             <Input
-              id="dob"
+              id="date_of_birth"
               type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
+              value={date_of_birth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
               disabled={loading}
               max={new Date().toISOString().split('T')[0]}
             />

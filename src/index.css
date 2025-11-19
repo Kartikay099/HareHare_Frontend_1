@@ -211,6 +211,14 @@ All colors MUST be HSL.
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 } */ 
 
+.chat-box {
+  max-height: 60vh;     /* Chat box ki total height */
+  overflow-y: auto;     /* Scroll sirf box ke andar */
+  margin-top: 20px;     /* Top se gap */
+  padding-right: 8px;   /* Scrollbar ke liye space */
+}
+
+
 @keyframes floating {
   0% { transform: translateY(0); }
   50% { transform: translateY(-12px); }

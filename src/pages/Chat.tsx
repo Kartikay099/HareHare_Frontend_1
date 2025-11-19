@@ -353,46 +353,48 @@ const Chat: React.FC = () => {
         </div>
       )}
 
-      {/* Chat area - with proper spacing */}
-      <div className="flex-1 overflow-y-auto px-4 pt-[140px] pb-3">
-        {messages.map((m, idx) => (
-          <div
-            key={m.id ?? idx}
-            className={`mb-3 flex ${
-              m.from === "user" ? "justify-end" : "justify-start"
-            } animate-fadeSlide`}
-          >
+      {/* Chat area - NO BOX, messages directly on background */}
+      <div className="px-4 pt-[80px] pb-3 mt-40">
+        <div className="space-y-3">
+          {messages.map((m, idx) => (
             <div
-              className={`px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow-lg
-                ${
-                  m.from === "user"
-                    ? "bg-orange-600 text-white rounded-br-none"
-                    : "bg-white text-orange-700 border border-orange-200 rounded-bl-none godBubbleGlow"
-                }
-              `}
+              key={m.id ?? idx}
+              className={`flex ${
+                m.from === "user" ? "justify-end" : "justify-start"
+              } animate-fadeSlide`}
             >
-              <span>{m.text}</span>
-              {m.composing && (
-                <span className="ml-1 inline-block w-1 h-4 align-middle bg-transparent animate-blinkCaret"></span>
-              )}
-            </div>
-          </div>
-        ))}
-
-        {/* WhatsApp-like typing indicator */}
-        {isGodTyping && (
-          <div className="mb-3 flex justify-start">
-            <div className="px-3 py-2 rounded-2xl bg-white border border-orange-200 text-orange-700 shadow-sm typingBubble">
-              <div className="flex items-center gap-1">
-                <span className="dot" />
-                <span className="dot delay1" />
-                <span className="dot delay2" />
+              <div
+                className={`px-4 py-2 rounded-2xl max-w-[75%] text-sm shadow-lg
+                  ${
+                    m.from === "user"
+                      ? "bg-orange-600 text-white rounded-br-none"
+                      : "bg-white text-orange-700 border border-orange-200 rounded-bl-none godBubbleGlow"
+                  }
+                `}
+              >
+                <span>{m.text}</span>
+                {m.composing && (
+                  <span className="ml-1 inline-block w-1 h-4 align-middle bg-transparent animate-blinkCaret"></span>
+                )}
               </div>
             </div>
-          </div>
-        )}
+          ))}
 
-        <div ref={messagesEndRef} />
+          {/* WhatsApp-like typing indicator */}
+          {isGodTyping && (
+            <div className="flex justify-start">
+              <div className="px-3 py-2 rounded-2xl bg-white border border-orange-200 text-orange-700 shadow-sm typingBubble">
+                <div className="flex items-center gap-1">
+                  <span className="dot" />
+                  <span className="dot delay1" />
+                  <span className="dot delay2" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input bar - properly positioned */}
@@ -473,7 +475,7 @@ const Chat: React.FC = () => {
         }
 
         /* blinking caret for composing message (subtle) */
-        .animate-blinkCaret, .animate-blinkCaret::after { animation: blinkCaret 1s steps(1) infinite; }
+        .animate-blinkCaret { animation: blinkCaret 1s steps(1) infinite; }
         @keyframes blinkCaret {
           0% { opacity: 1; }
           50% { opacity: 0; }

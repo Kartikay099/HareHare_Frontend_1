@@ -121,7 +121,7 @@ const AppLayout: React.FC = () => {
 
             {/* Language */}
             <Button onClick={(e)=>{addRipple(e);haptic(); toggleLanguage();}} size="sm" variant="outline">
-              {i18n.language === "en" ? "हिन्दी" : "English"}
+              {i18n.language === "en" ? "English" : "हिन्दी"}
             </Button>
 
             {/* Logout */}
