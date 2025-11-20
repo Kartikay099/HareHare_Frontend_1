@@ -102,7 +102,6 @@ const Profile: React.FC = () => {
   const name = profile?.name || user?.name || 'N/A';
   const email = profile?.email || user?.email || 'N/A';
   const phone = profile?.phone || user?.phone || 'N/A';
-  const dob = profile?.dob || user?.dob || 'N/A';
   const isSubscribed = profile?.is_premium ?? false;
 
   const handleSettingsClick = () => navigate('/app/settings');
@@ -187,11 +186,6 @@ const Profile: React.FC = () => {
         <div className="space-y-1">
           <Label>Phone</Label>
           <Input value={phone} readOnly disabled className="bg-gray-100 font-medium" />
-        </div>
-
-        <div className="space-y-1">
-          <Label>Date of Birth</Label>
-          <Input value={dob} readOnly disabled className="bg-gray-100 font-medium" />
         </div>
 
         {/* REFERRAL SECTION */}
