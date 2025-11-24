@@ -23,6 +23,9 @@ const Register: React.FC = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // ⭐ ADDED STATE  
+  const [referral_code, setReferralCode] = useState('');
+
   // Animated heading text
   const AnimatedHeading = () => {
     const texts = [
@@ -102,7 +105,6 @@ const Register: React.FC = () => {
       return;
     }
 
-    // Required fields validation
     if (!name.trim()) {
       toast.error('Please enter your full name');
       return;
@@ -116,13 +118,14 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      // Prepare data for backend
+      // ⭐ ADDED referral_code in API payload
       const userData = {
         name: name.trim(),
         phone,
         preferred_language: preferred_language || 'en',
-        email: email.trim() || null, // Send null if empty
-        date_of_birth: date_of_birth || null // Send null if empty
+        email: email.trim() || null,
+        date_of_birth: date_of_birth || null,
+        referral_code: referral_code.trim() || null,  // <-- VERY IMPORTANT
       };
 
       await register(userData);
@@ -136,7 +139,7 @@ const Register: React.FC = () => {
     }
   };
 
-  // Phone input handler (numeric only)
+  // Phone input handler
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
     if (value.length <= 10) setPhone(value);
@@ -230,6 +233,19 @@ const Register: React.FC = () => {
               onChange={(e) => setDateOfBirth(e.target.value)}
               disabled={loading}
               max={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+
+          {/* ⭐ Referral Code */}
+          <div className="space-y-2">
+            <Label htmlFor="referral_code">Referral Code (optional)</Label>
+            <Input
+              id="referral_code"
+              type="text"
+              placeholder="Enter referral code"
+              value={referral_code}
+              onChange={(e) => setReferralCode(e.target.value)}
+              disabled={loading}
             />
           </div>
 

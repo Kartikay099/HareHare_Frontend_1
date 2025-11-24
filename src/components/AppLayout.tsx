@@ -43,7 +43,7 @@ const AppLayout: React.FC = () => {
 
   const navItems = [
     { path: '/app/home', icon: Home, label: t('nav.home') },
-    { path: '/app/library', icon: BookOpen, label: t('nav.library') },
+    { path: '/app/library', icon: BookOpen, label: t('Collections') },
     { path: '/app/events', icon: Calendar, label: t('nav.events') },
     { path: '/app/profile', icon: User, label: t('nav.profile') },
   ];

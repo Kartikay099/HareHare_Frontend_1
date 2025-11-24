@@ -15,7 +15,6 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import Home from '@/pages/Home';
 import Events from '@/pages/Events';
-import Puja from '@/pages/Puja';
 import Donate from '@/pages/Donate';
 import Library from '@/pages/Library';
 import Profile from '@/pages/Profile';
@@ -25,6 +24,8 @@ import Chat from '@/pages/Chat';
 
 // ⭐ New Added Page
 import Privacy from '@/pages/Privacy';
+import Terms from '@/pages/Terms';
+import PujaDetails from '@/pages/PujaDetails';
 
 // i18n config
 import '@/i18n/config';
@@ -47,6 +48,7 @@ const App: React.FC = () => {
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
                 <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
 
                 {/* Protected */}
                 <Route
@@ -60,7 +62,9 @@ const App: React.FC = () => {
                   <Route index element={<Navigate to="/app/home" replace />} />
                   <Route path="home" element={<Home />} />
                   <Route path="events" element={<Events />} />
-                  <Route path="puja" element={<Puja />} />
+              
+                  <Route path="puja/:id" element={<PujaDetails />} />
+                  <Route path="puja-details" element={<PujaDetails />} />
                   <Route path="donate" element={<Donate />} />
                   <Route path="library" element={<Library />} />
                   <Route path="profile" element={<Profile />} />

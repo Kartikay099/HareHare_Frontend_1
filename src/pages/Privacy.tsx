@@ -26,7 +26,7 @@ const Privacy: React.FC = () => {
           <p className="text-sm text-gray-500 text-right">Last updated: 17 November 2025</p>
 
           <p>
-            HareHare (“App”) is owned and operated by <b>13 Path Tech</b>. This Privacy Policy explains 
+            HareHare (“App”) is owned and operated by <b>Mediarun Digital</b>. This Privacy Policy explains 
             how we collect, use, store, and protect your information when using our services.
           </p>
 
