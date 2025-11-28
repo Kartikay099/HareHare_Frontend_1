@@ -3,6 +3,12 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Home, Calendar, Flame, BookOpen, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/context/AuthContext';
 
 /* ---------------------------------------------------
@@ -43,7 +49,7 @@ const AppLayout: React.FC = () => {
 
   const navItems = [
     { path: '/app/home', icon: Home, label: t('nav.home') },
-    { path: '/app/library', icon: BookOpen, label: t('Collections') },
+    { path: '/app/library', icon: BookOpen, label: t('nav.collections') },
     { path: '/app/events', icon: Calendar, label: t('nav.events') },
     { path: '/app/profile', icon: User, label: t('nav.profile') },
   ];
@@ -119,14 +125,29 @@ const AppLayout: React.FC = () => {
               </span>
             </div>
 
-            {/* Language */}
-            <Button onClick={(e)=>{addRipple(e);haptic(); toggleLanguage();}} size="sm" variant="outline">
-              {i18n.language === "en" ? "English" : "हिन्दी"}
-            </Button>
+            {/* Language Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  {i18n.language === "en" ? "English" : i18n.language === "hi" ? "हिन्दी" : "తెలుగు"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => { i18n.changeLanguage("en"); localStorage.setItem("language", "en"); }}>
+                  English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { i18n.changeLanguage("hi"); localStorage.setItem("language", "hi"); }}>
+                  हिन्दी
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { i18n.changeLanguage("te"); localStorage.setItem("language", "te"); }}>
+                  తెలుగు
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Logout */}
             <Button
-              onClick={(e)=>{addRipple(e);haptic(); handleLogout();}}
+              onClick={(e) => { addRipple(e); haptic(); handleLogout(); }}
               variant="ghost"
               size="sm"
               className="hidden sm:flex items-center space-x-1"

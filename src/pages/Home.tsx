@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 type God = {
   id: string;
-  name: { en: string; hi: string };
-  description: { en: string; hi: string };
+  name: { en: string; hi: string; te: string };
+  description: { en: string; hi: string; te: string };
   color: string;
   image: string;
 };
@@ -13,76 +13,82 @@ type God = {
 // Daily shloks for each day of the week
 const dailyShloks = [
   { // Monday
-    
     en: "Om Tryambakam Yajamahe Sugandhim Pushtivardhanam | Urvarukamiva Bandhanan Mrityormukshiya Maamritat ||",
-    hi: "ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान् मृत्योर्मुक्षीय मामृतात्।।"
+    hi: "ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान् मृत्योर्मुक्षीय मामृतात्।।",
+    te: "ఓం త్రయంబకం యజామహే సుగంధిం పుష్టివర్ధనం | ఉర్వారుకమివ బంధనాన్ మృత్యోర్ముక్షీయ మామృతాత్ ||"
   },
   { // Tuesday
     en: "Om Aim Hreem Hanumate Shri Ramadutaya Namah ||",
-    hi: "ॐ ऐं ह्रीं हनुमते श्री रामदूताय नमः॥"
+    hi: "ॐ ऐं ह्रीं हनुमते श्री रामदूताय नमः॥",
+    te: "ఓం ఐం హ్రీం హనుమతే శ్రీ రామదూతాయ నమః ||"
   },
   { // Wednesday
     en: "Vakratunda Mahakaya, Suryakoti Samaprabha | Nirvighnam Kuru Me Deva, Sarvakaryeshu Sarvada ||",
-    hi: "वक्रतुण्ड महाकाय, सूर्यकोटि समप्रभ। निर्विघ्नं कुरु मे देव, सर्वकार्येषु सर्वदा॥"
+    hi: "वक्रतुण्ड महाकाय, सूर्यकोटि समप्रभ। निर्विघ्नं कुरु मे देव, सर्वकार्येषु सर्वदा॥",
+    te: "వక్రతుండ మహాకాయ, సూర్యకోటి సమప్రభ | నిర్విఘ్నం కురు మే దేవ, సర్వకార్యేషు సర్వదా ||"
   },
   { // Thursday
     en: "Om Brim Brihaspataye Namah ||",
-    hi: "ॐ बृं बृहस्पतये नमः।।"
+    hi: "ॐ बृं बृहस्पतये नमः।।",
+    te: "ఓం బృం బృహస్పతయే నమః ||"
   },
   { // Friday
     en: "Om Sarvamangal Mangalye Shive Sarvartha Sadhike | Sharanye Tryambake Gauri Narayani Namostute ||",
-    hi: "ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके। शरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते॥"
+    hi: "ॐ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके। शरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते॥",
+    te: "ఓం సర్వమంగళ మాంగళ్యే శివే సర్వార్థ సాధికే | శరణ్యే త్రయంబకే గౌరి నారాయణి నమోస్తుతే ||"
   },
   { // Saturday
     en: "Om Bhagabhavaya Vidmahe Mrityurupaya Dheemahi Tanno Shanih Prachodyat ||",
-    hi: "ॐ भगभवाय विद्महे मृत्युरुपाय धीमहि तन्नो शनिः प्रचोद्यात्॥"
+    hi: "ॐ भगभवाय विद्महे मृत्युरुपाय धीमहि तन्नो शनिः प्रचोद्यात्॥",
+    te: "ఓం భగభవాయ విద్మహే మృత్యురూపాయ ధీమహి తన్నో శనిః ప్రచోదయాత్ ||"
   },
   { // Sunday
     en: "Om Adityaya Vidmahe Divakaraya Dheemahi Tannah Suryah Prachodayat ||",
-    hi: "ऊँ आदित्याय विदमहे दिवाकराय धीमहि तन्न: सूर्य: प्रचोदयात।।"
+    hi: "ऊँ आदित्याय विदमहे दिवाकराय धीमहि तन्न: सूर्य: प्रचोदयात।।",
+    te: "ఓం ఆదిత్యాయ విద్మహే దివాకరాయ ధీమహి తన్నః సూర్యః ప్రచోదయాత్ ||"
   }
 ];
 
 const gods: God[] = [
   {
     id: "shiva",
-    name: { en: "Shiva", hi: "शिव" },
-    description: { en: "The Transformer", hi: "परिवर्तनकारी" },
+    name: { en: "Shiva", hi: "शिव", te: "శివ" },
+    description: { en: "The Transformer", hi: "परिवर्तनकारी", te: "లయకారుడు" },
     color: "from-gray-700 to-gray-900",
     image: "/Shiv_ji.jpg",
   },
   {
     id: "hanuman",
-    name: { en: "Hanuman", hi: "हनुमान" },
-    description: { en: "Strength & Devotion", hi: "शक्ति और भक्ति" },
+    name: { en: "Hanuman", hi: "हनुमान", te: "హనుమాన్" },
+    description: { en: "Strength & Devotion", hi: "शक्ति और भक्ति", te: "శక్తి & భక్తి" },
     color: "from-red-600 to-red-800",
     image: "/Hanuman_ji.jpg",
   },
   {
     id: "ram",
-    name: { en: "Ram", hi: "राम" },
-    description: { en: "Supreme Lord", hi: "परम देव" },
+    name: { en: "Ram", hi: "राम", te: "రామ్" },
+    description: { en: "Supreme Lord", hi: "परम देव", te: "మర్యాదా పురుషోత్తముడు" },
     color: "from-indigo-600 to-indigo-800",
     image: "/Ram_ji.jpg",
   },
   {
     id: "krishna",
-    name: { en: "Krishna", hi: "कृष्ण" },
-    description: { en: "Divine Guide", hi: "दिव्य मार्गदर्शक" },
+    name: { en: "Krishna", hi: "कृष्ण", te: "కృష్ణ" },
+    description: { en: "Divine Guide", hi: "दिव्य मार्गदर्शक", te: "దివ్య మార్గదర్శకుడు" },
     color: "from-blue-500 to-blue-700",
     image: "/Krishna_ji.png",
   },
   {
     id: "ganesha",
-    name: { en: "Ganesha", hi: "गणेश" },
-    description: { en: "Obstacle Remover", hi: "विघ्नहर्ता" },
+    name: { en: "Ganesha", hi: "गणेश", te: "గణేశ" },
+    description: { en: "Obstacle Remover", hi: "विघ्नहर्ता", te: "విఘ్నేశ్వరుడు" },
     color: "from-orange-500 to-orange-700",
     image: "/Ganesh_ji.jpg",
   },
   {
     id: "saraswati",
-    name: { en: "Saraswati", hi: "सरस्वती" },
-    description: { en: "Knowledge", hi: "ज्ञान" },
+    name: { en: "Saraswati", hi: "सरस्वती", te: "సరస్వతి" },
+    description: { en: "Knowledge", hi: "ज्ञान", te: "జ్ఞాన ప్రదాయిని" },
     color: "from-white to-gray-100 border border-gray-300",
     image: "/Saraswati_ji.jpg",
   },
@@ -98,8 +104,11 @@ const Home: React.FC = () => {
   const [isTyping, setIsTyping] = useState(true);
   const [dayName, setDayName] = useState("");
 
-  const getText = (obj: { en: string; hi: string }) =>
-    i18n.language === "hi" ? obj.hi : obj.en;
+  const getText = (obj: { en: string; hi: string; te: string }) => {
+    if (i18n.language === "hi") return obj.hi;
+    if (i18n.language === "te") return obj.te;
+    return obj.en;
+  };
 
   // Get current shlok based on day of the week
   useEffect(() => {
@@ -111,24 +120,34 @@ const Home: React.FC = () => {
 
     const dayIndex = getDailyShlokIndex();
     setCurrentShlokIndex(dayIndex);
-    
+
     // Set day name for display
     const days = [
-      "Sunday", "Monday", "Tuesday", "Wednesday", 
+      "Sunday", "Monday", "Tuesday", "Wednesday",
       "Thursday", "Friday", "Saturday"
     ];
     const hindiDays = [
-      "रविवार", "सोमवार", "मंगलवार", "बुधवार", 
+      "रविवार", "सोमवार", "मंगलवार", "बुधवार",
       "गुरुवार", "शुक्रवार", "शनिवार"
     ];
-    setDayName(i18n.language === "hi" ? hindiDays[dayIndex] : days[dayIndex]);
+    const teluguDays = [
+      "ఆదివారం", "సోమవారం", "మంగళవారం", "బుధవారం",
+      "గురువారం", "శుక్రవారం", "శనివారం"
+    ];
+
+    if (i18n.language === "hi") setDayName(hindiDays[dayIndex]);
+    else if (i18n.language === "te") setDayName(teluguDays[dayIndex]);
+    else setDayName(days[dayIndex]);
   }, [i18n.language]);
 
   // Typing animation for the main message
   useEffect(() => {
-    const message = i18n.language === "hi" 
-      ? "भगवान आपकी बात सुनने के लिए तैयार हैं। उस भगवान को चुनें जिनसे आपका दिल सबसे ज्यादा जुड़ाव महसूस करता है।"
-      : "The divine is ready to listen. Choose the God your heart feels most connected to.";
+    let message = "The divine is ready to listen. Choose the God your heart feels most connected to.";
+    if (i18n.language === "hi") {
+      message = "भगवान आपकी बात सुनने के लिए तैयार हैं। उस भगवान को चुनें जिनसे आपका दिल सबसे ज्यादा जुड़ाव महसूस करता है।";
+    } else if (i18n.language === "te") {
+      message = "దైవం మీ మాట వినడానికి సిద్ధంగా ఉంది. మీ హృదయానికి దగ్గరగా అనిపించే దైవాన్ని ఎంచుకోండి.";
+    }
 
     if (isTyping && currentIndex < message.length) {
       const timer = setTimeout(() => {
@@ -179,7 +198,7 @@ const Home: React.FC = () => {
           {/* Divine Title with Glow */}
           <div className="relative mb-8">
             <h1 className="text-4xl font-bold text-orange-800 mb-2 tracking-wide">
-              {i18n.language === "hi" ? "दिव्य संवाद" : "Divine Guidance"}
+              {i18n.language === "hi" ? "दिव्य संवाद" : i18n.language === "te" ? "దివ్య సంభాషణ" : "Divine Guidance"}
             </h1>
             <div className="w-24 h-1 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full mx-auto shadow-lg" />
           </div>
@@ -191,7 +210,7 @@ const Home: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                   <h3 className="text-orange-700 font-medium text-sm uppercase tracking-wider">
-                    {i18n.language === "hi" ? `${dayName} का श्लोक` : `${dayName}'s Shlok`}
+                    {i18n.language === "hi" ? `${dayName} का श्लोक` : i18n.language === "te" ? `${dayName} శ్లోకం` : `${dayName}'s Shlok`}
                   </h3>
                   <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                 </div>
@@ -230,7 +249,9 @@ const Home: React.FC = () => {
             <h2 className="text-orange-800 font-bold text-lg mb-2 tracking-wide">
               {i18n.language === "hi"
                 ? "जिस भगवान से बात करना चाहते हैं उन्हें चुनें"
-                : "Select the God you want to talk to"}
+                : i18n.language === "te"
+                  ? "మీరు మాట్లాడాలనుకుంటున్న దేవుడిని ఎంచుకోండి"
+                  : "Select the God you want to talk to"}
             </h2>
             <div className="w-16 h-0.5 bg-orange-400/60 rounded-full mx-auto" />
           </div>
@@ -251,21 +272,21 @@ const Home: React.FC = () => {
                 <div className="relative">
                   {/* Outer Glow Effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-orange-300 to-amber-300 rounded-full blur-sm group-hover:blur-md transition-all duration-300 opacity-0 group-hover:opacity-70" />
-                  
+
                   {/* Main Avatar Container */}
                   <div
                     className={`relative w-20 h-20 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-2xl overflow-hidden border-2 border-white/80 bg-gradient-to-br ${god.color} group-hover:scale-110 group-hover:shadow-xl transition-all duration-300 transform`}
                   >
-                    <img 
-                      src={god.image} 
+                    <img
+                      src={god.image}
                       alt={getText(god.name)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    
+
                     {/* Overlay Shine Effect */}
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full" />
                   </div>
-                  
+
                   {/* Pulse Animation on Hover */}
                   <div className="absolute inset-0 rounded-full border-2 border-orange-400/0 group-hover:border-orange-400/50 group-hover:animate-ping transition-all duration-300" />
                 </div>
@@ -274,7 +295,7 @@ const Home: React.FC = () => {
                 <span className="text-sm font-semibold text-orange-900 mt-3 group-hover:text-orange-700 transition-colors duration-200 text-center leading-tight">
                   {getText(god.name)}
                 </span>
-                
+
                 {/* Subtle Description */}
                 <span className="text-xs text-orange-600/80 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {getText(god.description)}

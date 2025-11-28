@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import SacredLoader from '@/components/SacredLoader';
 
 const Register: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { register, isAuthenticated } = useAuth();
 
@@ -18,7 +18,7 @@ const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [preferred_language, setPreferredLanguage] = useState('');
+  const [preferred_language, setPreferredLanguage] = useState(localStorage.getItem('language') || 'en');
   const [date_of_birth, setDateOfBirth] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,6 +31,7 @@ const Register: React.FC = () => {
     const texts = [
       "Start your authentic journey",
       "अपनी असली यात्रा शुरू करें",
+      "మీ నిజమైన ప్రయాణాన్ని ప్రారంభించండి"
     ];
 
     const [index, setIndex] = useState(0);
@@ -62,6 +63,13 @@ const Register: React.FC = () => {
       navigate('/app/home', { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  // Handle Language Change
+  const handleLanguageChange = (value: string) => {
+    setPreferredLanguage(value);
+    localStorage.setItem('language', value);
+    i18n.changeLanguage(value);
+  };
 
   // Submit handler
   const handleRegister = async (e: React.FormEvent) => {
@@ -146,13 +154,19 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-amber-100 p-4">
-      <div className="sacred-card max-w-md w-full p-8 animate-fade-in">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+      style={{ backgroundImage: "url('/auth_background.png')" }}
+    >
+      {/* Overlay for better contrast */}
+      <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]" />
+
+      <div className="sacred-card max-w-md w-full p-8 animate-fade-in relative z-10 bg-transparent border-none shadow-none">
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-6xl text-amber-600 mb-4"> ॐ </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <img src="/applogo.png" alt="App Logo" className="h-24 w-auto mx-auto mb-4" />
+          <h1 className="text-3xl font-bold text-black mb-2 drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
             {t('auth.register') || 'Create Account'}
           </h1>
           <AnimatedHeading />
@@ -163,7 +177,7 @@ const Register: React.FC = () => {
 
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
+            <Label htmlFor="name" className="font-extrabold text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-base">Full Name *</Label>
             <Input
               id="name"
               type="text"
@@ -171,13 +185,14 @@ const Register: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={loading}
+              className="bg-white text-black border-amber-200 shadow-sm font-medium placeholder:text-gray-400"
               required
             />
           </div>
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email" className="font-extrabold text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-base">Email Address</Label>
             <Input
               id="email"
               type="email"
@@ -185,14 +200,15 @@ const Register: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
+              className="bg-white text-black border-amber-200 shadow-sm font-medium placeholder:text-gray-400"
             />
           </div>
 
           {/* Phone */}
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number *</Label>
+            <Label htmlFor="phone" className="font-extrabold text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-base">Phone Number *</Label>
             <div className="flex">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-amber-200 bg-white text-black font-bold text-sm shadow-sm">
                 +91
               </span>
               <Input
@@ -202,7 +218,7 @@ const Register: React.FC = () => {
                 value={phone}
                 onChange={handlePhoneChange}
                 disabled={loading}
-                className="rounded-l-none"
+                className="rounded-l-none bg-white text-black border-amber-200 shadow-sm font-medium placeholder:text-gray-400"
                 required
               />
             </div>
@@ -210,22 +226,23 @@ const Register: React.FC = () => {
 
           {/* Language */}
           <div className="space-y-2">
-            <Label>Preferred Language *</Label>
-            <Select value={preferred_language} onValueChange={setPreferredLanguage} disabled={loading}>
-              <SelectTrigger>
+            <Label className="font-extrabold text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-base">Preferred Language *</Label>
+            <Select value={preferred_language} onValueChange={handleLanguageChange} disabled={loading}>
+              <SelectTrigger className="bg-white text-black border-amber-200 shadow-sm font-medium">
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">English</SelectItem>
                 <SelectItem value="hi">हिंदी (Hindi)</SelectItem>
+                <SelectItem value="te">తెలుగు (Telugu)</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">You can change it later in settings.</p>
+            <p className="text-xs text-black font-bold drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">You can change it later in settings.</p>
           </div>
 
           {/* DOB */}
           <div className="space-y-2">
-            <Label htmlFor="date_of_birth">Date of Birth</Label>
+            <Label htmlFor="date_of_birth" className="font-extrabold text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-base">Date of Birth</Label>
             <Input
               id="date_of_birth"
               type="date"
@@ -233,12 +250,13 @@ const Register: React.FC = () => {
               onChange={(e) => setDateOfBirth(e.target.value)}
               disabled={loading}
               max={new Date().toISOString().split('T')[0]}
+              className="bg-white text-black border-amber-200 shadow-sm font-medium"
             />
           </div>
 
           {/* ⭐ Referral Code */}
           <div className="space-y-2">
-            <Label htmlFor="referral_code">Referral Code (optional)</Label>
+            <Label htmlFor="referral_code" className="font-extrabold text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] text-base">Referral Code (optional)</Label>
             <Input
               id="referral_code"
               type="text"
@@ -246,6 +264,7 @@ const Register: React.FC = () => {
               value={referral_code}
               onChange={(e) => setReferralCode(e.target.value)}
               disabled={loading}
+              className="bg-white text-black border-amber-200 shadow-sm font-medium placeholder:text-gray-400"
             />
           </div>
 
@@ -260,13 +279,13 @@ const Register: React.FC = () => {
                 disabled={loading}
                 className="mt-1 w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 focus:ring-2"
               />
-              <label htmlFor="terms" className="text-sm leading-tight cursor-pointer">
+              <label htmlFor="terms" className="text-sm leading-tight cursor-pointer text-black font-bold drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
                 I agree to the{' '}
-                <Link to="/terms" className="text-amber-600 hover:text-amber-700 underline font-medium">
+                <Link to="/terms" className="text-amber-900 hover:text-black underline decoration-2 font-extrabold">
                   Terms & Conditions
                 </Link>{' '}
                 and{' '}
-                <Link to="/privacy" className="text-amber-600 hover:text-amber-700 underline font-medium">
+                <Link to="/privacy" className="text-amber-900 hover:text-black underline decoration-2 font-extrabold">
                   Privacy Policy
                 </Link>{' '}
                 *
@@ -277,7 +296,7 @@ const Register: React.FC = () => {
           {/* Submit Btn */}
           <Button
             type="submit"
-            className="w-full bg-amber-600 text-white hover:bg-amber-700 transition"
+            className="w-full bg-amber-600 text-white hover:bg-amber-700 transition shadow-lg font-bold text-lg"
             disabled={loading || !acceptedTerms}
           >
             {loading ? (
@@ -293,17 +312,17 @@ const Register: React.FC = () => {
 
         {/* Already account */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-black font-bold drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
             Already have an account?{' '}
-            <Link to="/auth/login" className="text-amber-600 hover:underline font-medium">
+            <Link to="/auth/login" className="text-amber-900 hover:text-black underline decoration-2 font-extrabold">
               {t('auth.login') || 'Sign In'}
             </Link>
           </p>
         </div>
 
         {/* Bottom Notice */}
-        <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
-          <p className="text-xs text-amber-800 text-center">
+        <div className="mt-4 p-3 bg-white/90 backdrop-blur-sm rounded-lg border border-amber-200 shadow-sm">
+          <p className="text-xs text-amber-950 text-center font-bold">
             Your spiritual journey is private & sacred. We respect your privacy. 🙏
           </p>
         </div>

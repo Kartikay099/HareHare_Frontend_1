@@ -7,19 +7,15 @@
     "reload": "Please reload",
     "retry": "Retry"
   },
-  
   "streak": {
     "days": "days"
   },
-  
   "library": {
     "title": "Sacred Library",
     "scriptures": "Scriptures",
     "resources": "Resources",
     "search": "Search scriptures..."
   },
-
-
   "auth": {
     "login": "Login",
     "register": "Register",
@@ -42,6 +38,7 @@
     "donate": "Donate",
     "library": "Library",
     "profile": "Profile",
+    "collections": "Collections",
     "settings": "Settings"
   },
   "home": {

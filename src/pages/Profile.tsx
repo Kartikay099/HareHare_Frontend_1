@@ -5,6 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   User,
   BadgeCheck,
   Settings,
@@ -26,6 +32,9 @@ import {
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 
+import useEmblaCarousel from 'embla-carousel-react';
+import { useCallback } from 'react';
+
 const Profile: React.FC = () => {
   const { t } = useTranslation();
   const auth = useAuth();
@@ -38,9 +47,31 @@ const Profile: React.FC = () => {
   const [referralCode, setReferralCode] = useState('');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [currentSeva, setCurrentSeva] = useState('basic');
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [currentSlide, setCurrentSlide] = useState(0);
+
   const { logout } = useAuth();
   const { i18n } = useTranslation();
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback((emblaApi: any) => {
+    setCurrentSlide(emblaApi.selectedScrollSnap());
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect(emblaApi);
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+  }, [emblaApi, onSelect]);
 
   const generateFallbackCode = () => {
     const base =
@@ -90,12 +121,21 @@ const Profile: React.FC = () => {
 
         if (!res.ok) {
           if (res.status === 401) {
-            toast.error('Not authenticated — please login again.');
+            let msg = 'Not authenticated — please login again.';
+            if (i18n.language === 'hi') msg = 'प्रमाणित नहीं — कृपया फिर से लॉगिन करें।';
+            if (i18n.language === 'te') msg = 'ప్రమాణీకరించబడలేదు — దయచేసి మళ్లీ లాగిన్ చేయండి.';
+            toast.error(msg);
             navigate('/auth/login');
           } else if (res.status === 404) {
-            toast.error('Profile not found. Please complete registration.');
+            let msg = 'Profile not found. Please complete registration.';
+            if (i18n.language === 'hi') msg = 'प्रोफ़ाइल नहीं मिली। कृपया पंजीकरण पूरा करें।';
+            if (i18n.language === 'te') msg = 'ప్రొఫైల్ కనుగొనబడలేదు. దయచేసి నమోదు పూర్తి చేయండి.';
+            toast.error(msg);
           } else {
-            toast.error('Failed to load profile');
+            let msg = 'Failed to load profile';
+            if (i18n.language === 'hi') msg = 'प्रोफ़ाइल लोड करने में विफल';
+            if (i18n.language === 'te') msg = 'ప్రొఫైల్ లోడ్ చేయడంలో విఫలమైంది';
+            toast.error(msg);
           }
           setProfile(null);
         } else {
@@ -120,7 +160,10 @@ const Profile: React.FC = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);
-    toast.success('Referral link copied!');
+    let msg = 'Referral link copied!';
+    if (i18n.language === 'hi') msg = 'रेफरल लिंक कॉपी किया गया!';
+    if (i18n.language === 'te') msg = 'రెఫరల్ లింక్ కాపీ చేయబడింది!';
+    toast.success(msg);
   };
 
   const handleShare = async () => {
@@ -141,113 +184,142 @@ const Profile: React.FC = () => {
 
   const confirmLogout = () => {
     logout();
-    toast.success(i18n.language === 'hi' ? 'सफलतापूर्वक लॉगआउट हो गए' : 'Logged out successfully');
+    let msg = 'Logged out successfully';
+    if (i18n.language === 'hi') msg = 'सफलतापूर्वक लॉगआउट हो गए';
+    if (i18n.language === 'te') msg = 'విజయవంతంగా లాగ్ అవుట్ అయ్యారు';
+    toast.success(msg);
     navigate('/auth/login');
     setShowLogoutConfirm(false);
   };
 
   const cancelLogout = () => {
     setShowLogoutConfirm(false);
-    toast.info(i18n.language === 'hi' ? 'लॉगआउट रद्द किया गया' : 'Logout cancelled');
+    let msg = 'Logout cancelled';
+    if (i18n.language === 'hi') msg = 'लॉगआउट रद्द किया गया';
+    if (i18n.language === 'te') msg = 'లాగ్ అవుట్ రద్దు చేయబడింది';
+    toast.info(msg);
   };
 
   const sevaLevels = [
     {
       id: 'basic',
-      name: { en: 'Dharma Seeker', hi: 'धर्म साधक' },
-      amount: { en: 'Free', hi: 'निःशुल्क' },
-      period: { en: 'Always available', hi: 'सदैव उपलब्ध' },
-      description: { en: 'Continue your journey', hi: 'अपनी यात्रा जारी रखें' },
+      name: { en: 'Dharma Seeker', hi: 'धर्म साधक', te: 'ధర్మ సాధకుడు' },
+      amount: { en: 'Free', hi: 'निःशुल्क', te: 'ఉచితం' },
+      period: { en: 'Always available', hi: 'सदैव उपलब्ध', te: 'ఎల్లప్పుడూ అందుబాటులో ఉంటుంది' },
+      description: { en: 'Continue your journey', hi: 'अपनी यात्रा जारी रखें', te: 'మీ ప్రయాణాన్ని కొనసాగించండి' },
       icon: Flower,
       blessings: [
-        { en: 'Daily spiritual guidance', hi: 'दैनिक आध्यात्मिक मार्गदर्शन' },
-        { en: 'Basic meditation content', hi: 'मूल ध्यान सामग्री' },
-        { en: 'Community prayers', hi: 'सामुदायिक प्रार्थनाएं' },
-        { en: 'Divine blessings', hi: 'दिव्य आशीर्वाद' },
+        { en: 'Daily spiritual guidance', hi: 'दैनिक आध्यात्मिक मार्गदर्शन', te: 'రోజువారీ ఆధ్యాత్మిక మార్గదర్శకత్వం' },
+        { en: 'Basic meditation content', hi: 'मूल ध्यान सामग्री', te: 'ప్రాథమిక ధ్యాన కంటెంట్' },
+        { en: 'Community prayers', hi: 'सामुदायिक प्रार्थनाएं', te: 'సామూహిక ప్రార్థనలు' },
+        { en: 'Divine blessings', hi: 'दिव्य आशीर्वाद', te: 'దివ్య ఆశీర్వాదాలు' },
       ],
       current: currentSeva === 'basic',
-      message: { en: 'Continue with gratitude', hi: 'कृतज्ञता के साथ जारी रखें' },
+      message: { en: 'Continue with gratitude', hi: 'कृतज्ञता के साथ जारी रखें', te: 'కృతజ్ఞతతో కొనసాగించండి' },
     },
     {
       id: 'weekly',
-      name: { en: 'Weekly Seva', hi: 'साप्ताहिक सेवा' },
-      amount: { en: '₹108', hi: '₹108' },
-      period: { en: 'Weekly offering', hi: 'साप्ताहिक योगदान' },
-      description: { en: 'Support the mission', hi: 'मिशन का समर्थन करें' },
+      name: { en: 'Weekly Seva', hi: 'साप्ताहिक सेवा', te: 'వారపు సేవ' },
+      amount: { en: '₹108', hi: '₹108', te: '₹108' },
+      period: { en: 'Weekly offering', hi: 'साप्ताहिक योगदान', te: 'వారపు కానుక' },
+      description: { en: 'Support the mission', hi: 'मिशन का समर्थन करें', te: 'మిషన్‌కు మద్దతు ఇవ్వండి' },
       icon: Heart,
       blessings: [
-        { en: 'All basic blessings', hi: 'सभी मूल आशीर्वाद' },
-        { en: 'Weekly special pujas', hi: 'साप्ताहिक विशेष पूजाएं' },
-        { en: 'Personal spiritual guidance', hi: 'व्यक्तिगत मार्गदर्शन' },
-        { en: 'Karma cleansing', hi: 'कर्म शुद्धि' },
-        { en: 'Your name in prayers', hi: 'प्रार्थनाओं में आपका नाम' },
+        { en: 'All basic blessings', hi: 'सभी मूल आशीर्वाद', te: 'అన్ని ప్రాథమిక ఆశీర్వాదాలు' },
+        { en: 'Weekly special pujas', hi: 'साप्ताहिक विशेष पूजाएं', te: 'వారపు ప్రత్యేక పూజలు' },
+        { en: 'Personal spiritual guidance', hi: 'व्यक्तिगत मार्गदर्शन', te: 'వ్యక్తిగత ఆధ్యాత్మిక మార్గదర్శకత్వం' },
+        { en: 'Karma cleansing', hi: 'कर्म शुद्धि', te: 'కర్మ ప్రక్షాళన' },
+        { en: 'Your name in prayers', hi: 'प्रार्थनाओं में आपका नाम', te: 'ప్రార్థనలలో మీ పేరు' },
       ],
       current: currentSeva === 'weekly',
-      message: { en: 'Your support nourishes us', hi: 'आपका समर्थन हमें पोषित करता है' },
+      message: { en: 'Your support nourishes us', hi: 'आपका समर्थन हमें पोषित करता है', te: 'మీ మద్దతు మాకు బలాన్నిస్తుంది' },
     },
     {
       id: 'monthly',
-      name: { en: 'Monthly Seva', hi: 'मासिक सेवा' },
-      amount: { en: '₹501', hi: '₹501' },
-      period: { en: 'Monthly devotion', hi: 'मासिक भक्ति' },
-      description: { en: 'Deepen commitment', hi: 'प्रतिबद्धता गहरी करें' },
+      name: { en: 'Monthly Seva', hi: 'मासिक सेवा', te: 'నెలవారీ సేవ' },
+      amount: { en: '₹501', hi: '₹501', te: '₹501' },
+      period: { en: 'Monthly devotion', hi: 'मासिक भक्ति', te: 'నెలవారీ భక్తి' },
+      description: { en: 'Deepen commitment', hi: 'प्रतिबद्धता गहरी करें', te: 'నిబద్ధతను పెంచుకోండి' },
       icon: Star,
       blessings: [
-        { en: 'All weekly blessings', hi: 'सभी साप्ताहिक आशीर्वाद' },
-        { en: 'Monthly ceremonies', hi: 'मासिक समारोह' },
-        { en: '1-on-1 guidance', hi: 'एक-पर-एक मार्गदर्शन' },
-        { en: 'Exclusive content', hi: 'विशेष सामग्री' },
-        { en: 'Priority prayers', hi: 'प्राथमिकता प्रार्थनाएं' },
+        { en: 'All weekly blessings', hi: 'सभी साप्ताहिक आशीर्वाद', te: 'అన్ని వారపు ఆశీర్వాదాలు' },
+        { en: 'Monthly ceremonies', hi: 'मासिक समारोह', te: 'నెలవారీ వేడుకలు' },
+        { en: '1-on-1 guidance', hi: 'एक-पर-एक मार्गदर्शन', te: '1-పై-1 మార్గదర్శకత్వం' },
+        { en: 'Exclusive content', hi: 'विशेष सामग्री', te: 'ప్రత్యేక కంటెంట్' },
+        { en: 'Priority prayers', hi: 'प्राथमिकता प्रार्थनाएं', te: 'ప్రాధాన్యత ప్రార్థనలు' },
       ],
       current: currentSeva === 'monthly',
-      message: { en: 'Monthly devotion grows you', hi: 'मासिक भक्ति विकास लाती है' },
+      message: { en: 'Monthly devotion grows you', hi: 'मासिक भक्ति विकास लाती है', te: 'నెలవారీ భక్తి మిమ్మల్ని వృద్ధి చేస్తుంది' },
     },
     {
       id: 'yearly',
-      name: { en: 'Annual Seva', hi: 'वार्षिक सेवा' },
-      amount: { en: '₹5001', hi: '₹5001' },
-      period: { en: 'Yearly offering', hi: 'वार्षिक योगदान' },
-      description: { en: 'Complete partnership', hi: 'पूर्ण साझेदारी' },
+      name: { en: 'Annual Seva', hi: 'वार्षिक सेवा', te: 'వార్షిక సేవ' },
+      amount: { en: '₹5001', hi: '₹5001', te: '₹5001' },
+      period: { en: 'Yearly offering', hi: 'वार्षिक योगदान', te: 'వార్షిక కానుక' },
+      description: { en: 'Complete partnership', hi: 'पूर्ण साझेदारी', te: 'పూర్తి భాగస్వామ్యం' },
       icon: Sparkles,
       blessings: [
-        { en: 'All monthly blessings', hi: 'सभी मासिक आशीर्वाद' },
-        { en: 'Year-round pujas', hi: 'सालभर पूजा' },
-        { en: 'Personal mentor', hi: 'व्यक्तिगत गुरु' },
-        { en: 'Master courses', hi: 'मास्टर कोर्स' },
-        { en: 'VIP access', hi: 'वीआईपी पहुंच' },
+        { en: 'All monthly blessings', hi: 'सभी मासिक आशीर्वाद', te: 'అన్ని నెలవారీ ఆశీర్వాదాలు' },
+        { en: 'Year-round pujas', hi: 'सालभर पूजा', te: 'ఏడాది పొడవునా పూజలు' },
+        { en: 'Personal mentor', hi: 'व्यक्तिगत गुरु', te: 'వ్యక్తిగత గురువు' },
+        { en: 'Master courses', hi: 'मास्टर कोर्स', te: 'మాస్టర్ కోర్సులు' },
+        { en: 'VIP access', hi: 'वीआईपी पहुंच', te: 'VIP యాక్సెస్' },
       ],
       current: currentSeva === 'yearly',
-      message: { en: 'Your devotion sustains all', hi: 'आपकी भक्ति सब सम्भालती है' },
+      message: { en: 'Your devotion sustains all', hi: 'आपकी भक्ति सब सम्भालती है', te: 'మీ భక్తి అందరినీ నిలబెడుతుంది' },
     },
   ];
 
-  const getLocalizedText = (text: { en: string; hi: string }) => {
-    return i18n.language === 'hi' ? text.hi : text.en;
+  const getLocalizedText = (text: { en: string; hi: string; te?: string }) => {
+    if (i18n.language === 'hi') return text.hi;
+    if (i18n.language === 'te') return text.te || text.en;
+    return text.en;
   };
 
   const offerSeva = (sevaLevel: string) => {
     setCurrentSeva(sevaLevel);
-    const msg =
-      i18n.language === 'hi'
-        ? `आपकी ${sevaLevel} सेवा के लिए धन्यवाद!`
-        : `Thank you for your ${sevaLevel} seva!`;
+    let msg = '';
+    if (i18n.language === 'hi') {
+      msg = `आपकी ${sevaLevel} सेवा के लिए धन्यवाद!`;
+    } else if (i18n.language === 'te') {
+      msg = `మీ ${sevaLevel} సేవకు ధన్యవాదాలు!`;
+    } else {
+      msg = `Thank you for your ${sevaLevel} seva!`;
+    }
     toast.success(msg);
   };
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % sevaLevels.length);
-  };
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + sevaLevels.length) % sevaLevels.length);
-  };
+
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<string>('');
+
+  const AVATARS = [
+    { name: 'Ganesh Ji', src: '/Ganesh_ji.jpg' },
+    { name: 'Krishna Ji', src: '/Krishna_ji.png' },
+    { name: 'Ram Ji', src: '/Ram_ji.jpg' },
+    { name: 'Shiv Ji', src: '/Shiv_ji.jpg' },
+    { name: 'Hanuman Ji', src: '/Hanuman_ji.jpg' },
+    { name: 'Saraswati Ji', src: '/Saraswati_ji.jpg' },
+  ];
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % sevaLevels.length);
-    }, 5000);
-    return () => clearInterval(timer);
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+      setSelectedAvatar(savedAvatar);
+    } else {
+      const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)].src;
+      setSelectedAvatar(randomAvatar);
+      localStorage.setItem('userAvatar', randomAvatar);
+    }
   }, []);
+
+  const handleAvatarSelect = (avatarSrc: string) => {
+    setSelectedAvatar(avatarSrc);
+    localStorage.setItem('userAvatar', avatarSrc);
+    setIsAvatarDialogOpen(false);
+    toast.success(i18n.language === 'hi' ? 'प्रोफ़ाइल तस्वीर अपडेट की गई' : 'Profile picture updated');
+  };
 
   if (isLoading) {
     return (
@@ -263,39 +335,59 @@ const Profile: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       <div className="text-center mb-8">
-        <div className="inline-block p-4 bg-primary/10 rounded-full mb-4 relative">
-          <User className="h-16 w-16 text-primary" />
+        <div className="relative inline-block mb-4">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-amber-100 shadow-lg relative bg-amber-50">
+            {selectedAvatar ? (
+              <img
+                src={selectedAvatar}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <User className="h-12 w-12 text-amber-300" />
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setIsAvatarDialogOpen(true)}
+            className="absolute bottom-0 right-0 bg-amber-600 text-white p-1.5 rounded-full hover:bg-amber-700 transition-colors shadow-md"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
           {isSubscribed && (
-            <div className="absolute -top-1 -right-1 bg-background rounded-full p-1">
+            <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm">
               <BadgeCheck className="h-6 w-6 text-green-500" />
             </div>
           )}
         </div>
 
         <h1 className="text-4xl font-bold mb-2">{t('profile.title')}</h1>
-        <p className="text-muted-foreground">Your personal spiritual identity</p>
+        <p className="text-muted-foreground">
+          {i18n.language === 'hi' ? 'आपकी व्यक्तिगत आध्यात्मिक पहचान' : i18n.language === 'te' ? 'మీ వ్యక్తిగత ఆధ్యాత్మిక గుర్తింపు' : 'Your personal spiritual identity'}
+        </p>
 
         {isSubscribed && (
           <div className="mt-2 inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
             <BadgeCheck className="h-4 w-4" />
-            Premium Subscriber
+            {i18n.language === 'hi' ? 'प्रीमियम ग्राहक' : i18n.language === 'te' ? 'ప్రీమియం చందాదారుడు' : 'Premium Subscriber'}
           </div>
         )}
       </div>
 
       <div className="sacred-card p-8 space-y-5">
         <div className="space-y-1">
-          <Label>Name</Label>
+          <Label>{i18n.language === 'hi' ? 'नाम' : i18n.language === 'te' ? 'పేరు' : 'Name'}</Label>
           <Input value={name} readOnly disabled className="bg-gray-100 font-medium" />
         </div>
 
         <div className="space-y-1">
-          <Label>Email</Label>
+          <Label>{i18n.language === 'hi' ? 'ईमेल' : i18n.language === 'te' ? 'ఇమెయిల్' : 'Email'}</Label>
           <Input value={email} readOnly disabled className="bg-gray-100 font-medium" />
         </div>
 
         <div className="space-y-1">
-          <Label>Phone</Label>
+          <Label>{i18n.language === 'hi' ? 'फ़ोन' : i18n.language === 'te' ? 'ఫోన్' : 'Phone'}</Label>
           <Input value={phone} readOnly disabled className="bg-gray-100 font-medium" />
         </div>
       </div>
@@ -308,10 +400,10 @@ const Profile: React.FC = () => {
           </div>
           <div>
             <h2 className="text-lg font-semibold">
-              {i18n.language === 'hi' ? 'सदस्यता स्थिति' : 'Subscription Status'}
+              {i18n.language === 'hi' ? 'सदस्यता स्थिति' : i18n.language === 'te' ? 'చందా స్థితి' : 'Subscription Status'}
             </h2>
             <p className="text-xs text-muted-foreground">
-              {i18n.language === 'hi' ? 'आपकी वर्तमान आध्यात्मिक योजना' : 'Your current spiritual plan'}
+              {i18n.language === 'hi' ? 'आपकी वर्तमान आध्यात्मिक योजना' : i18n.language === 'te' ? 'మీ ప్రస్తుత ఆధ్యాత్మిక ప్రణాళిక' : 'Your current spiritual plan'}
             </p>
           </div>
         </div>
@@ -320,40 +412,40 @@ const Profile: React.FC = () => {
           <div className="p-3 rounded-lg border bg-amber-50/60 border-amber-200">
             <p className="flex items-center gap-1 text-xs font-medium text-muted-foreground mb-1">
               <Clock className="h-3 w-3 text-amber-600" />
-              {i18n.language === 'hi' ? 'योजना' : 'Plan'}
+              {i18n.language === 'hi' ? 'योजना' : i18n.language === 'te' ? 'ప్రణాళిక' : 'Plan'}
             </p>
             <p className="text-sm font-semibold">
               {isSubscribed
-                ? i18n.language === 'hi' ? 'प्रीमियम सदस्यता' : 'Premium Subscription'
-                : i18n.language === 'hi' ? 'मूल योजना' : 'Basic Plan'}
+                ? i18n.language === 'hi' ? 'प्रीमियम सदस्यता' : i18n.language === 'te' ? 'ప్రీమియం చందా' : 'Premium Subscription'
+                : i18n.language === 'hi' ? 'मूल योजना' : i18n.language === 'te' ? 'ప్రాథమిక ప్రణాళిక' : 'Basic Plan'}
             </p>
           </div>
 
           <div className="p-3 rounded-lg border bg-amber-50/60 border-amber-200">
             <p className="flex items-center gap-1 text-xs font-medium text-muted-foreground mb-1">
               <AlertCircle className="h-3 w-3 text-amber-600" />
-              {i18n.language === 'hi' ? 'स्थिति' : 'Status'}
+              {i18n.language === 'hi' ? 'स्थिति' : i18n.language === 'te' ? 'స్థితి' : 'Status'}
             </p>
             <p
-              className={`text-sm font-semibold ${
-                isSubscribed ? 'text-green-700' : 'text-amber-700'
-              }`}
+              className={`text-sm font-semibold ${isSubscribed ? 'text-green-700' : 'text-amber-700'
+                }`}
             >
               {isSubscribed
-                ? i18n.language === 'hi' ? 'सक्रिय' : 'Active'
-                : i18n.language === 'hi' ? 'मूल पहुंच' : 'Basic Access'}
+                ? i18n.language === 'hi' ? 'सक्रिय' : i18n.language === 'te' ? 'యాక్టివ్' : 'Active'
+                : i18n.language === 'hi' ? 'मूल पहुंच' : i18n.language === 'te' ? 'ప్రాథమిక యాక్సెస్' : 'Basic Access'}
             </p>
           </div>
 
           <div className="p-3 rounded-lg border bg-amber-50/60 border-amber-200 col-span-2">
             <p className="flex items-center gap-1 text-xs font-medium text-muted-foreground mb-1">
               <Heart className="h-3 w-3 text-purple-600" />
-              {i18n.language === 'hi' ? 'सेवा स्तर' : 'Seva Level'}
+              {i18n.language === 'hi' ? 'सेवा स्तर' : i18n.language === 'te' ? 'సేవా స్థాయి' : 'Seva Level'}
             </p>
             <p className="text-sm font-semibold text-purple-700">
               {getLocalizedText(sevaLevels.find((s) => s.id === currentSeva)?.name || {
                 en: 'Basic',
                 hi: 'मूल',
+                te: 'ప్రాథమిక'
               })}
             </p>
           </div>
@@ -361,8 +453,8 @@ const Profile: React.FC = () => {
 
         <div className="mt-3 text-xs text-muted-foreground">
           {isSubscribed
-            ? '✨ Premium benefits active'
-            : '✨ Basic access enabled'}
+            ? (i18n.language === 'hi' ? '✨ प्रीमियम लाभ सक्रिय' : i18n.language === 'te' ? '✨ ప్రీమియం ప్రయోజనాలు యాక్టివ్‌గా ఉన్నాయి' : '✨ Premium benefits active')
+            : (i18n.language === 'hi' ? '✨ मूल पहुंच सक्षम' : i18n.language === 'te' ? '✨ ప్రాథమిక యాక్సెస్ ప్రారంభించబడింది' : '✨ Basic access enabled')}
         </div>
       </div>
 
@@ -374,20 +466,24 @@ const Profile: React.FC = () => {
           </div>
           <h2 className="text-2xl font-semibold mb-2">
             {i18n.language === 'hi'
-              ? 'सेवा अर्पित करें और समर्थन करें'
-              : 'Offer Seva & Support Our Mission'}
+              ? 'सदस्यता'
+              : i18n.language === 'te'
+                ? 'చందాలు'
+                : 'Subscriptions'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             {i18n.language === 'hi'
               ? 'आपका योगदान मंदिर रखरखाव और आध्यात्मिक सामग्री में सहायता करता है।'
-              : 'Your support helps maintain the temple and spiritual content.'}
+              : i18n.language === 'te'
+                ? 'మీ సహకారం ఆలయ నిర్వహణ మరియు ఆధ్యాత్మిక కంటెంట్‌కు సహాయపడుతుంది.'
+                : 'Your support helps maintain the temple and spiritual content.'}
           </p>
         </div>
 
         <div className="relative">
           <div className="flex justify-between items-center mb-6">
             <Button
-              onClick={prevSlide}
+              onClick={scrollPrev}
               variant="outline"
               size="icon"
               className="w-10 h-10 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
@@ -399,16 +495,15 @@ const Profile: React.FC = () => {
               {sevaLevels.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full ${
-                    index === currentSlide ? 'bg-amber-600' : 'bg-amber-300'
-                  }`}
+                  onClick={() => emblaApi && emblaApi.scrollTo(index)}
+                  className={`w-3 h-3 rounded-full transition-colors ${index === currentSlide ? 'bg-amber-600' : 'bg-amber-300'
+                    }`}
                 />
               ))}
             </div>
 
             <Button
-              onClick={nextSlide}
+              onClick={scrollNext}
               variant="outline"
               size="icon"
               className="w-10 h-10 rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
@@ -417,32 +512,26 @@ const Profile: React.FC = () => {
             </Button>
           </div>
 
-          <div className="relative overflow-hidden rounded-xl">
-            <div
-              className="flex transition-transform duration-500"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex touch-pan-y">
               {sevaLevels.map((seva) => {
                 const Icon = seva.icon;
                 return (
-                  <div key={seva.id} className="w-full flex-shrink-0 px-4">
+                  <div key={seva.id} className="flex-[0_0_100%] min-w-0 px-4">
                     <div
-                      className={`border rounded-xl p-6 ${
-                        seva.current
-                          ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
-                          : 'border-amber-200 bg-amber-50 hover:border-amber-300'
-                      }`}
+                      className={`border rounded-xl p-6 ${seva.current
+                        ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                        : 'border-amber-200 bg-amber-50 hover:border-amber-300'
+                        }`}
                     >
                       <div className="text-center mb-4">
                         <div
-                          className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${
-                            seva.current ? 'bg-green-100' : 'bg-amber-100'
-                          }`}
+                          className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${seva.current ? 'bg-green-100' : 'bg-amber-100'
+                            }`}
                         >
                           <Icon
-                            className={`h-6 w-6 ${
-                              seva.current ? 'text-green-600' : 'text-amber-600'
-                            }`}
+                            className={`h-6 w-6 ${seva.current ? 'text-green-600' : 'text-amber-600'
+                              }`}
                           />
                         </div>
                         <h3 className="font-semibold text-lg">
@@ -465,14 +554,15 @@ const Profile: React.FC = () => {
                         <div className="text-sm font-medium mb-2">
                           {i18n.language === 'hi'
                             ? 'आपको मिलने वाले आशीर्वाद:'
-                            : 'Blessings you receive:'}
+                            : i18n.language === 'te'
+                              ? 'మీరు పొందే ఆశీర్వాదాలు:'
+                              : 'Blessings you receive:'}
                         </div>
                         {seva.blessings.map((bless, idx) => (
                           <div key={idx} className="flex items-start gap-2 text-sm">
                             <div
-                              className={`w-2 h-2 rounded-full mt-1.5 ${
-                                seva.current ? 'bg-green-500' : 'bg-amber-500'
-                              }`}
+                              className={`w-2 h-2 rounded-full mt-1.5 ${seva.current ? 'bg-green-500' : 'bg-amber-500'
+                                }`}
                             />
                             <span>{getLocalizedText(bless)}</span>
                           </div>
@@ -481,20 +571,23 @@ const Profile: React.FC = () => {
 
                       <Button
                         onClick={() => offerSeva(seva.id)}
-                        className={`w-full ${
-                          seva.current
-                            ? 'bg-green-600 hover:bg-green-700'
-                            : 'bg-amber-600 hover:bg-amber-700'
-                        } text-white`}
+                        className={`w-full ${seva.current
+                          ? 'bg-green-600 hover:bg-green-700'
+                          : 'bg-amber-600 hover:bg-amber-700'
+                          } text-white`}
                         disabled={seva.current}
                       >
                         {seva.current
                           ? i18n.language === 'hi'
                             ? '🙏 वर्तमान में यह सेवा अर्पित कर रहे हैं'
-                            : '🙏 Currently Offering This Seva'
+                            : i18n.language === 'te'
+                              ? '🙏 ప్రస్తుతం ఈ సేవను అర్పిస్తున్నారు'
+                              : '🙏 Currently Offering This Seva'
                           : i18n.language === 'hi'
-                          ? `${getLocalizedText(seva.name)} सेवा अर्पित करें`
-                          : `Offer ${getLocalizedText(seva.name)} Seva`}
+                            ? `${getLocalizedText(seva.name)} सेवा अर्पित करें`
+                            : i18n.language === 'te'
+                              ? `${getLocalizedText(seva.name)} అర్పించండి`
+                              : `Offer ${getLocalizedText(seva.name)} Seva`}
                       </Button>
                     </div>
                   </div>
@@ -504,16 +597,12 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200 text-center text-sm">
-          {i18n.language === 'hi'
-            ? '💫 सभी योगदान मंदिर और समुदाय की सेवा के लिए उपयोग किए जाते हैं।'
-            : '💫 All contributions support the temple and community.'}
-        </div>
+
       </div>
 
       <div className="sacred-card p-6 mt-6">
         <h2 className="text-xl font-semibold mb-4">
-          {i18n.language === 'hi' ? 'खाता' : 'Account'}
+          {i18n.language === 'hi' ? 'खाता' : i18n.language === 'te' ? 'ఖాతా' : 'Account'}
         </h2>
         <Button
           onClick={handleLogoutClick}
@@ -521,7 +610,7 @@ const Profile: React.FC = () => {
           className="w-full flex items-center justify-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
         >
           <LogOut className="h-5 w-5" />
-          <span>{i18n.language === 'hi' ? 'साइन आउट' : 'Sign Out'}</span>
+          <span>{i18n.language === 'hi' ? 'साइन आउट' : i18n.language === 'te' ? 'సైన్ అవుట్' : 'Sign Out'}</span>
         </Button>
       </div>
 
@@ -546,12 +635,16 @@ const Profile: React.FC = () => {
               <h3 className="text-lg font-semibold mb-2">
                 {i18n.language === 'hi'
                   ? 'क्या आप वाकई साइन आउट करना चाहते हैं?'
-                  : 'Are you sure you want to sign out?'}
+                  : i18n.language === 'te'
+                    ? 'మీరు ఖచ్చితంగా సైన్ అవుట్ చేయాలనుకుంటున్నారా?'
+                    : 'Are you sure you want to sign out?'}
               </h3>
               <p className="text-muted-foreground text-sm">
                 {i18n.language === 'hi'
                   ? 'फिर से प्रवेश करना होगा।'
-                  : 'You will need to sign in again.'}
+                  : i18n.language === 'te'
+                    ? 'మీరు మళ్లీ సైన్ ఇన్ చేయాల్సి ఉంటుంది.'
+                    : 'You will need to sign in again.'}
               </p>
             </div>
 
@@ -561,18 +654,47 @@ const Profile: React.FC = () => {
                 variant="outline"
                 className="flex-1 border-amber-200 text-amber-700 hover:bg-amber-50"
               >
-                {i18n.language === 'hi' ? 'नहीं' : 'Cancel'}
+                {i18n.language === 'hi' ? 'नहीं' : i18n.language === 'te' ? 'వద్దు' : 'Cancel'}
               </Button>
               <Button
                 onClick={confirmLogout}
                 className="flex-1 bg-red-600 text-white hover:bg-red-700"
               >
-                {i18n.language === 'hi' ? 'हाँ' : 'Sign Out'}
+                {i18n.language === 'hi' ? 'हाँ' : i18n.language === 'te' ? 'అవును' : 'Sign Out'}
               </Button>
             </div>
           </div>
         </div>
       )}
+
+      <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Choose Avatar</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-3 gap-4 py-4">
+            {AVATARS.map((avatar) => (
+              <button
+                key={avatar.name}
+                onClick={() => handleAvatarSelect(avatar.src)}
+                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedAvatar === avatar.src
+                  ? 'border-amber-600 ring-2 ring-amber-200'
+                  : 'border-transparent hover:border-amber-300'
+                  }`}
+              >
+                <img
+                  src={avatar.src}
+                  alt={avatar.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] py-1 text-center truncate px-1">
+                  {avatar.name}
+                </div>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
