@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "registration-75dd5"
-  }
+    "default": "harehare-d441a",
+    "y": "harehare-d441a"
+  },
+  "targets": {},
+  "etags": {}
 }
